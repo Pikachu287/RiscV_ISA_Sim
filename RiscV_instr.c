@@ -1,4 +1,26 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+/// @brief Extends an int number of a size_bit to 32bits using sign extension.
+/// @param n number
+/// @param size_bit how many bits the number currently is
+/// @return Returns the 32bit sign_extended version of an int of size size_bit
+
+int sign_Extend(int n, int size_bit){
+    if (size_bit >= 32){
+        printf("Error, cant extend more than 32bits\n");
+    }
+    int no_extend = (n & (1 << (size_bit-1))) ? 0 : 1;
+    if(no_extend){
+        return n;
+    }else{
+        //Creates an int with all bits at 1 except from size_bit LSB
+        int temp = 0xFFFFFFFF;
+        temp = temp << size_bit;
+        return temp | n;
+    }
+}
+
 
 int main(){
     int X[32] = {};
@@ -6,10 +28,23 @@ int main(){
         0x00200093, // addi x1 x0 2
         0x002081b3, // add x3 x1 x2
         0x00300113, // addi x2 x0 3
-        0x00811213 // slli x4 x2 8
+        0x00811213, // slli x4 x2 8
+        0x00125213, // srli x4 x4 1
+        0x00202023, // sw x2, 0(x0)
+        0x00002503, // lw x10, 0(x0)
+        0x004000a3, // sb x4, 1(x0)
+        0x00102583 // lw x11, 1(x0)
     };
-
+    
+    //MEM alloc
+    int *mem = (int *) malloc(1024*1024); //1MB
+    if (mem == NULL){
+        printf("Memory allocation failed\n");
+        return 1;
+    }
     int pc = 0;
+    
+    
     
     while (1){
         int instr = instructions[pc >> 2];
@@ -119,14 +154,24 @@ int main(){
         case 0x3://I-type opcode=b0000011
             switch(funct3){
             case 0x0: //lb
+                //Sign extend only first byte of data from memory,
+                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,12)]) & 0xFF,8);
                 break;
             case 0x1://lh
+                //Sign extend second byte of data from memory,
+                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,12)]) & 0xFFFF,16);
                 break;
             case 0x2://lw
+                printf("LW: %d\n",mem[X[rs1] + sign_Extend(imm,12)]);
+                X[rd] = mem[X[rs1] + sign_Extend(imm,12)];
                 break;
             case 0x4://lbu
+                //Extract only byte
+                X[rd] = mem[X[rs1] + sign_Extend(imm,12)] & 0xFF;
                 break;
             case 0x5://lhu
+                //Extract 2 bytes
+                X[rd] = mem[X[rs1] + sign_Extend(imm,12)] & 0xFFFF;
                 break;
 
             }
@@ -150,10 +195,13 @@ int main(){
         case 0x23://S-type opcode=b0100011
             switch(funct3){
             case 0x0: //sb
+                mem[rs1 + sign_Extend(imm_S,12)] = X[rs2] & 0xFF;
                 break;
             case 0x1: //sh
+                mem[rs1 + sign_Extend(imm_S,12)] = X[rs2] & 0xFFFF;
                 break;
             case 0x2: //sw
+                mem[rs1 + sign_Extend(imm_S,12)] = X[rs2];
                 break;
             }
             pc += 4;
