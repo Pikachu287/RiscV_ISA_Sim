@@ -232,11 +232,13 @@ int main(){
             break;
         
         case 0x37: //U-type opcode=b0110111 - lui
-            // lui - load upper immediate rd = imm << 12
+        // lui - load upper immediate rd = imm << 12
+            X[rd] = instr & 0xFFFFF000;
             pc += 4;
             break;
         case 0x17: //U-type opcode=b0010111 - auipc
             // auipc - Add upper immediate to pc. rd = pc + (imm << 12)
+            X[rd] = pc + (instr & 0xFFFFF000);
             pc += 4;
             break;
         
