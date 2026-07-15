@@ -8,6 +8,7 @@
 int sign_Extend(int n, int size_bit){
     if (size_bit >= 32){
         printf("Error, cant extend more than 32bits\n");
+        return -1;
     }
     int no_extend = (n & (1 << (size_bit))) ? 0 : 1;
     if(no_extend){
@@ -36,7 +37,7 @@ int main(){
     };
     
     //MEM alloc
-    int *mem = (int *) malloc(1024*1024); //1MB
+    unsigned char *mem = (unsigned char *) malloc(1024*1024); //1MB
     if (mem == NULL){
         printf("Memory allocation failed\n");
         return 1;
@@ -62,8 +63,10 @@ int main(){
         int shamt = imm & 0x1F; //For shifting only uses 5-LSB of IMM value to shift
         
         int imm_S = (funct7 << 5) | rd; //12bit imm for type-S/B instructions
-
+        int imm_B = (((instr >> 31) & 0x1) << 12) | (((instr >> 7) & 0x1) << 11) | (((instr >> 25) & 0x3F) << 5) | (((instr >> 8) & 0xF) << 1);
+        imm_B = sign_Extend(imm_B, 12);
         int imm_jal = (((instr >> 31) & 0x1) << 20) | (((instr >> 12) & 0xFF) << 12) | (((instr >> 20) & 0x1) << 11) | (((instr >> 21) & 0x3FF) << 1);
+        int addr = 0;
             
 
         switch (opcode)
@@ -83,13 +86,13 @@ int main(){
                     }
                 break;
             case 0x1: //sll
-                X[rd] = X[rs1] << X[rs2];
+                X[rd] = X[rs1] << (X[rs2] & 0x1F);
                 break;
             case 0x2: //slt - set Less Than signed
                 X[rd] = (X[rs1] < X[rs2]) ? 1 : 0;
                 break;
             case 0x3: //sltu - set Less Than unsigned
-                X[rd] = (X[rs1] < X[rs2]) ? 1 : 0;
+                X[rd] = ((unsigned int)X[rs1] < (unsigned int)X[rs2]) ? 1 : 0;
                 break;
             case 0x4: //XOR
                 X[rd] = X[rs1] ^ X[rs2];
@@ -97,10 +100,10 @@ int main(){
             case 0x5: //SRA and SRL
                 switch(funct7){
                     case 0: //SRL
-                        X[rd] = X[rs1] >> X[rs2];
+                        X[rd] = (unsigned int) X[rs1] >> (X[rs2] & 0x1F);
                         break;
                     case 0x20: //SRA
-                        X[rd] = X[rs1] >> X[rs2];
+                        X[rd] = X[rs1] >> (X[rs2] & 0x1F);
                         break;
                 }
                 break;
@@ -156,23 +159,27 @@ int main(){
             switch(funct3){
             case 0x0: //lb
                 //Sign extend only first byte of data from memory,
-                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,11)]) & 0xFF,7);
+                addr = X[rs1] + sign_Extend(imm,11);
+                X[rd] = sign_Extend((mem[addr]) & 0xFF,7);
                 break;
             case 0x1://lh
                 //Sign extend second byte of data from memory,
-                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,11)]) & 0xFFFF,15);
+                addr = X[rs1] + sign_Extend(imm,11);
+                X[rd] = sign_Extend(mem[addr] | (mem[addr + 1] << 8),15);
                 break;
             case 0x2://lw
-                printf("LW: %d\n",mem[X[rs1] + sign_Extend(imm,11)]);
-                X[rd] = mem[X[rs1] + sign_Extend(imm,11)];
+                addr = X[rs1] + sign_Extend(imm,11);
+                X[rd] = mem[addr] | (mem[addr+1]<<8) | (mem[addr+2]<<16) | (mem[addr+3]<<24);
                 break;
             case 0x4://lbu
                 //Extract 1 byte
-                X[rd] = mem[X[rs1] + sign_Extend(imm,11)] & 0xFF;
+                addr = X[rs1] + sign_Extend(imm,11);
+                X[rd] = mem[addr] & 0xFF;
                 break;
             case 0x5://lhu
                 //Extract 2 bytes
-                X[rd] = mem[X[rs1] + sign_Extend(imm,11)] & 0xFFFF;
+                addr = X[rs1] + sign_Extend(imm,11);
+                X[rd] = (mem[addr] | (mem[addr + 1] << 8)) & 0xFFFF;
                 break;
 
             }
@@ -196,13 +203,20 @@ int main(){
         case 0x23://S-type opcode=b0100011
             switch(funct3){
             case 0x0: //sb
-                mem[rs1 + sign_Extend(imm_S,11)] = X[rs2] & 0xFF;
+                addr = X[rs1] + sign_Extend(imm_S,11);
+                mem[addr] = X[rs2] & 0xFF;
                 break;
             case 0x1: //sh
-                mem[rs1 + sign_Extend(imm_S,11)] = X[rs2] & 0xFFFF;
+                addr = X[rs1] + sign_Extend(imm_S,11);
+                mem[addr] = X[rs2] & 0xFF;
+                mem[addr+1] = (X[rs2] >> 8) & 0xFF;
                 break;
             case 0x2: //sw
-                mem[rs1 + sign_Extend(imm_S,11)] = X[rs2];
+                addr = X[rs1] + sign_Extend(imm_S,11);
+                mem[addr] = X[rs2] & 0xFF;
+                mem[addr+1] = (X[rs2] >> 8) & 0xFF;
+                mem[addr+2] = (X[rs2] >> 16) & 0xFF;
+                mem[addr+3] = (X[rs2] >> 24) & 0xFF;
                 break;
             }
             pc += 4;
@@ -211,22 +225,22 @@ int main(){
         case 0x63://SB-type opcode=b1100011
             switch(funct3){
             case 0x0: //beq rs1==rs2
-                pc = (X[rs1] == X[rs2]) ? pc + imm_S : pc + 4;
+                pc = (X[rs1] == X[rs2]) ? pc + imm_B : pc + 4;
                 break;
             case 0x1: //bne rs1!=rs2
-                pc = (X[rs1] != X[rs2]) ? pc + imm_S : pc + 4;
+                pc = (X[rs1] != X[rs2]) ? pc + imm_B : pc + 4;
                 break;
             case 0x4: //blt rs1 < rs2 signed
-                pc = (X[rs1] < X[rs2]) ? pc + imm_S : pc + 4;
+                pc = (X[rs1] < X[rs2]) ? pc + imm_B : pc + 4;
                 break;
             case 0x5: //bge rs1 >= rs2 signed
-                pc = (X[rs1] >= X[rs2]) ? pc + imm_S : pc + 4;
+                pc = (X[rs1] >= X[rs2]) ? pc + imm_B : pc + 4;
                 break;
             case 0x6: // bltu rs1 < rs2 unsigned
-                pc = (X[rs1] < X[rs2]) ? pc + imm_S : pc + 4;
+                pc = ((unsigned int)X[rs1] < (unsigned int)X[rs2]) ? pc + imm_B : pc + 4;
                 break;
             case 0x7: //bgeu rs1 >= rs2 unsigned
-                pc = (X[rs1] >= X[rs2]) ? pc + imm_S : pc + 4;
+                pc = ((unsigned int)X[rs1] >= (unsigned int)X[rs2]) ? pc + imm_B : pc + 4;
                 break;
             }
             break;
