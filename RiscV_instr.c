@@ -5,12 +5,11 @@
 /// @param n number
 /// @param size_bit how many bits the number currently is
 /// @return Returns the 32bit sign_extended version of an int of size size_bit
-
 int sign_Extend(int n, int size_bit){
     if (size_bit >= 32){
         printf("Error, cant extend more than 32bits\n");
     }
-    int no_extend = (n & (1 << (size_bit-1))) ? 0 : 1;
+    int no_extend = (n & (1 << (size_bit))) ? 0 : 1;
     if(no_extend){
         return n;
     }else{
@@ -63,6 +62,8 @@ int main(){
         int shamt = imm & 0x1F; //For shifting only uses 5-LSB of IMM value to shift
         
         int imm_S = (funct7 << 5) | rd; //12bit imm for type-S/B instructions
+
+        int imm_jal = (((instr >> 31) & 0x1) << 20) | (((instr >> 12) & 0xFF) << 12) | (((instr >> 20) & 0x1) << 11) | (((instr >> 21) & 0x3FF) << 1);
             
 
         switch (opcode)
@@ -155,23 +156,23 @@ int main(){
             switch(funct3){
             case 0x0: //lb
                 //Sign extend only first byte of data from memory,
-                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,12)]) & 0xFF,8);
+                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,11)]) & 0xFF,7);
                 break;
             case 0x1://lh
                 //Sign extend second byte of data from memory,
-                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,12)]) & 0xFFFF,16);
+                X[rd] = sign_Extend((mem[X[rs1] + sign_Extend(imm,11)]) & 0xFFFF,15);
                 break;
             case 0x2://lw
-                printf("LW: %d\n",mem[X[rs1] + sign_Extend(imm,12)]);
-                X[rd] = mem[X[rs1] + sign_Extend(imm,12)];
+                printf("LW: %d\n",mem[X[rs1] + sign_Extend(imm,11)]);
+                X[rd] = mem[X[rs1] + sign_Extend(imm,11)];
                 break;
             case 0x4://lbu
-                //Extract only byte
-                X[rd] = mem[X[rs1] + sign_Extend(imm,12)] & 0xFF;
+                //Extract 1 byte
+                X[rd] = mem[X[rs1] + sign_Extend(imm,11)] & 0xFF;
                 break;
             case 0x5://lhu
                 //Extract 2 bytes
-                X[rd] = mem[X[rs1] + sign_Extend(imm,12)] & 0xFFFF;
+                X[rd] = mem[X[rs1] + sign_Extend(imm,11)] & 0xFFFF;
                 break;
 
             }
@@ -183,25 +184,25 @@ int main(){
             break;
         
         case 0x67://I-type opcode=b1100111 -jalr
-            pc += 4; //TEMPORARY THIS IS WRONG
+            X[rd] = pc + 4;
+            pc = (X[rs1] + sign_Extend(imm,11)) & ~0x1;
             break;
         
         case 0x6F://UJ-type opcode=b1101111 - jal
-            //jal - Jump and Link, rd = pc + 4; 
-            //pc += imm
-            pc += 4; //TEMPORARY THIS IS WRONG
+            X[rd] = pc + 4;
+            pc = pc + (sign_Extend(imm_jal,20));
             break;
         
         case 0x23://S-type opcode=b0100011
             switch(funct3){
             case 0x0: //sb
-                mem[rs1 + sign_Extend(imm_S,12)] = X[rs2] & 0xFF;
+                mem[rs1 + sign_Extend(imm_S,11)] = X[rs2] & 0xFF;
                 break;
             case 0x1: //sh
-                mem[rs1 + sign_Extend(imm_S,12)] = X[rs2] & 0xFFFF;
+                mem[rs1 + sign_Extend(imm_S,11)] = X[rs2] & 0xFFFF;
                 break;
             case 0x2: //sw
-                mem[rs1 + sign_Extend(imm_S,12)] = X[rs2];
+                mem[rs1 + sign_Extend(imm_S,11)] = X[rs2];
                 break;
             }
             pc += 4;
