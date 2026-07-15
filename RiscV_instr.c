@@ -60,12 +60,9 @@ int main(){
         int funct7 = (instr >> 25) & 0x7F;
 
         int imm = (instr >> 20) & 0xFFF; // 12bit MSB
-        int shamt = imm & 0x1F; //For shifting only uses 5-LSB of IMM value to shift
+       
         
-        int imm_S = (funct7 << 5) | rd; //12bit imm for type-S/B instructions
-        int imm_B = (((instr >> 31) & 0x1) << 12) | (((instr >> 7) & 0x1) << 11) | (((instr >> 25) & 0x3F) << 5) | (((instr >> 8) & 0xF) << 1);
-        imm_B = sign_Extend(imm_B, 12);
-        int imm_jal = (((instr >> 31) & 0x1) << 20) | (((instr >> 12) & 0xFF) << 12) | (((instr >> 20) & 0x1) << 11) | (((instr >> 21) & 0x3FF) << 1);
+        
         int addr = 0;
             
 
@@ -118,6 +115,7 @@ int main(){
             break;
 
         case 0x13://I-type opcode=b0010011
+            int shamt = imm & 0x1F; //For shifting only uses 5-LSB of IMM value to shift
             switch(funct3){
             case 0x0: //addi
                 printf("addi\n");
@@ -197,22 +195,24 @@ int main(){
         
         case 0x6F://UJ-type opcode=b1101111 - jal
             X[rd] = pc + 4;
-            pc = pc + (sign_Extend(imm_jal,20));
+            imm = (((instr >> 31) & 0x1) << 20) | (((instr >> 12) & 0xFF) << 12) | (((instr >> 20) & 0x1) << 11) | (((instr >> 21) & 0x3FF) << 1);
+            pc = pc + (sign_Extend(imm,20));
             break;
         
         case 0x23://S-type opcode=b0100011
+            imm = (funct7 << 5) | rd; //12bit imm for type-S/B instructions
             switch(funct3){
             case 0x0: //sb
-                addr = X[rs1] + sign_Extend(imm_S,11);
+                addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 break;
             case 0x1: //sh
-                addr = X[rs1] + sign_Extend(imm_S,11);
+                addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 mem[addr+1] = (X[rs2] >> 8) & 0xFF;
                 break;
             case 0x2: //sw
-                addr = X[rs1] + sign_Extend(imm_S,11);
+                addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 mem[addr+1] = (X[rs2] >> 8) & 0xFF;
                 mem[addr+2] = (X[rs2] >> 16) & 0xFF;
@@ -222,25 +222,28 @@ int main(){
             pc += 4;
             break;
         
-        case 0x63://SB-type opcode=b1100011
+        case 0x63://B-type opcode=b1100011
+            //Calculate the correct imm for B-type instructions
+            imm = (((instr >> 31) & 0x1) << 12) | (((instr >> 7) & 0x1) << 11) | (((instr >> 25) & 0x3F) << 5) | (((instr >> 8) & 0xF) << 1);
+            imm = sign_Extend(imm, 12);
             switch(funct3){
             case 0x0: //beq rs1==rs2
-                pc = (X[rs1] == X[rs2]) ? pc + imm_B : pc + 4;
+                pc = (X[rs1] == X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x1: //bne rs1!=rs2
-                pc = (X[rs1] != X[rs2]) ? pc + imm_B : pc + 4;
+                pc = (X[rs1] != X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x4: //blt rs1 < rs2 signed
-                pc = (X[rs1] < X[rs2]) ? pc + imm_B : pc + 4;
+                pc = (X[rs1] < X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x5: //bge rs1 >= rs2 signed
-                pc = (X[rs1] >= X[rs2]) ? pc + imm_B : pc + 4;
+                pc = (X[rs1] >= X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x6: // bltu rs1 < rs2 unsigned
-                pc = ((unsigned int)X[rs1] < (unsigned int)X[rs2]) ? pc + imm_B : pc + 4;
+                pc = ((unsigned int)X[rs1] < (unsigned int)X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x7: //bgeu rs1 >= rs2 unsigned
-                pc = ((unsigned int)X[rs1] >= (unsigned int)X[rs2]) ? pc + imm_B : pc + 4;
+                pc = ((unsigned int)X[rs1] >= (unsigned int)X[rs2]) ? pc + imm : pc + 4;
                 break;
             }
             break;
