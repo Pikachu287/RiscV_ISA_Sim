@@ -258,5 +258,8 @@ int main(){
     }
 
     printf("done");
+    while(1){ // Loop to keep in terminal - BC i can
+
+    }
     return 0;
 }
