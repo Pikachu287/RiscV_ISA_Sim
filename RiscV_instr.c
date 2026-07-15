@@ -49,23 +49,20 @@ int main(){
     while (1){
         int instr = instructions[pc >> 2];
 
-        //uni
+        //uni / Default placement of part instructions
         int opcode = instr & 0x7F;
         int funct3 = (instr >> 12) & 0x7;
         int rd = (instr >> 7) & 0x1F;
-        
-        
         int rs1 = (instr >> 15) & 0x1F;
         int rs2 = (instr >> 20) & 0x1F;
         int funct7 = (instr >> 25) & 0x7F;
 
+        //Imm value, default to I-type imm but is changed to fit other instructions
         int imm = (instr >> 20) & 0xFFF; // 12bit MSB
-       
-        
-        
+        //Addres value
         int addr = 0;
-            
-
+        
+        //Large switch statement firstly with OPCODE, then funct3 then funct7 or IMM values for some instructions.
         switch (opcode)
         {
         case 0x33://R-type opcode=b0110011
