@@ -21,6 +21,7 @@ Usage:
 """
 
 import argparse
+import os
 import struct
 import sys
 
@@ -76,15 +77,25 @@ def main():
     args = parser.parse_args()
 
     # If no filename was given on the command line, ask for it interactively.
-    if args.input is None:
-        args.input = input("Enter the .res filename (e.g. loop.res): ").strip().strip('"')
+    # Keep asking until a file is found, instead of crashing on a bad path.
+    while True:
+        if args.input is None:
+            args.input = input("Enter the .res filename (e.g. loop.res): ").strip().strip('"')
 
-    values = decode_res_file(
-        args.input,
-        count=args.count,
-        signed=not args.unsigned,
-        little_endian=not args.big_endian,
-    )
+        try:
+            values = decode_res_file(
+                args.input,
+                count=args.count,
+                signed=not args.unsigned,
+                little_endian=not args.big_endian,
+            )
+            break
+        except FileNotFoundError:
+            print(f"Could not find '{args.input}' in the current folder "
+                  f"({os.getcwd()}).")
+            print("Tip: either type the full path (e.g. C:\\path\\to\\loop.res "
+                  "or bin_files/loop.res), or cd into the folder that contains it first.")
+            args.input = None  # clear so we prompt again
 
     output = format_output(values)
 

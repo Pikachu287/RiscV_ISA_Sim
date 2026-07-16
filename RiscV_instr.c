@@ -389,6 +389,7 @@ int main(){
             pc += 4;
             break;
         }
+        //always makes sure X[0]=0
         if (X[0] != 0) X[0] = 0;
         if (pc >= instr_len) break;
     }
