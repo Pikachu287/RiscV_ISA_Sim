@@ -17,6 +17,7 @@ instructions = [
     0x003160B3,
     0x003170B3,#Last R-type
     0x00A10093,#I-type
+    0xFFF00293, #Extra addi for neg value
     0x00A12093,
     0x00A13093,
     0x00A14093,
