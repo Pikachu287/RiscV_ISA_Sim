@@ -71,6 +71,8 @@ int main(){
         return EXIT_FAILURE;
     }
     fprintf(out, "Dump of all instructions and register values\n");
+    fprintf(out, "INST----rd, rs1/2/imm\n");
+    fprintf(out, "________________________________________________________________\n");
     
     int instr;
     while (1){
@@ -110,58 +112,58 @@ int main(){
                 switch(funct7){
                     case 0: //add
                         printf("add x%d, x%d, x%d\n",rd,rs1,rs2);
-                        fprintf(out,"add x%d, x%d, x%d\n",rd,rs1,rs2);
+                        fprintf(out,"add \tx%d, x%d, x%d\n",rd,rs1,rs2);
                         X[rd] = X[rs1] + X[rs2];
                         break;
                     case 0x20: //sub
                         printf("sub x%d, x%d, x%d\n",rd,rs1,rs2);
-                        fprintf(out,"sub x%d, x%d, x%d\n",rd,rs1,rs2);
+                        fprintf(out,"sub \tx%d, x%d, x%d\n",rd,rs1,rs2);
                         X[rd] = X[rs1] - X[rs2];
                         break;
                     }
                 break;
             case 0x1: //sll
                 printf("sll x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"sll x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"sll \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = X[rs1] << (X[rs2] & 0x1F);
                 break;
             case 0x2: //slt - set Less Than signed
                 printf("slt x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"slt x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"slt \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = (X[rs1] < X[rs2]) ? 1 : 0;
                 break;
             case 0x3: //sltu - set Less Than unsigned
                 printf("sltu x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"sltu x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"sltu \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = ((unsigned int)X[rs1] < (unsigned int)X[rs2]) ? 1 : 0;
                 break;
             case 0x4: //XOR
                 printf("xor x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"xor x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"xor \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = X[rs1] ^ X[rs2];
                 break;
             case 0x5: //SRA and SRL
                 switch(funct7){
                     case 0: //SRL
                         printf("srl x%d, x%d, x%d\n",rd,rs1,rs2);
-                        fprintf(out,"srl x%d, x%d, x%d\n",rd,rs1,rs2);
+                        fprintf(out,"srl \tx%d, x%d, x%d\n",rd,rs1,rs2);
                         X[rd] = (unsigned int) X[rs1] >> (X[rs2] & 0x1F);
                         break;
                     case 0x20: //SRA
                         printf("sra x%d, x%d, x%d\n",rd,rs1,rs2);
-                        fprintf(out,"sra x%d, x%d, x%d\n",rd,rs1,rs2);
+                        fprintf(out,"sra \tx%d, x%d, x%d\n",rd,rs1,rs2);
                         X[rd] = X[rs1] >> (X[rs2] & 0x1F);
                         break;
                 }
                 break;
             case 0x6: //OR
                 printf("or x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"or x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"or  \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = X[rs1] | X[rs2];
                 break;
             case 0x7: //AND
                 printf("or x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"or x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"or  \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = X[rs1] & X[rs2];
                 break;
             }
@@ -173,51 +175,51 @@ int main(){
             switch(funct3){
             case 0x0: //addi
                 printf("addi x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
-                fprintf(out,"addi x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
+                fprintf(out,"addi \tx%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
                 X[rd] = X[rs1] + sign_Extend(imm,11);
                 break;
             case 0x1: //slli
                 printf("slli x%d, x%d, %d\n",rd,rs1,shamt);
-                fprintf(out,"slli x%d, x%d, %d\n",rd,rs1,shamt);
+                fprintf(out,"slli \tx%d, x%d, %d\n",rd,rs1,shamt);
                 X[rd] = X[rs1] << shamt;
                 break;
             case 0x2://slti
                 printf("slti x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
-                fprintf(out,"slti x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
+                fprintf(out,"slti \tx%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
                 X[rd] = (X[rs1] < sign_Extend(imm,11)) ? 1 : 0; 
                 break;
             case 0x3://sltiu - LOOK IF IT NEEDS TO BE CHANGED FOR UNSIGN
                 printf("sltiu x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
-                fprintf(out,"sltiu x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
+                fprintf(out,"sltiu \tx%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
                 X[rd] = (X[rs1] < sign_Extend(imm,11)) ? 1 : 0; 
                 break;
             case 0x4://xori
                 printf("xori x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
-                fprintf(out,"xori x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
+                fprintf(out,"xori \tx%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
                 X[rd] = X[rs1] ^ sign_Extend(imm,11);
                 break;
             case 0x5://srli / srai
                 switch(funct7){
                     case 0x0://srli
                         printf("srli x%d, x%d, %d\n",rd,rs1,shamt);
-                        fprintf(out,"srli x%d, x%d, %d\n",rd,rs1,shamt);
+                        fprintf(out,"srli \tx%d, x%d, %d\n",rd,rs1,shamt);
                         X[rd] = X[rs1] >> shamt;
                         break;
                     case 0x20://srai
                         printf("srai x%d, x%d, %d\n",rd,rs1,shamt);
-                        fprintf(out,"srai x%d, x%d, %d\n",rd,rs1,shamt);
+                        fprintf(out,"srai \tx%d, x%d, %d\n",rd,rs1,shamt);
                         X[rd] = X[rs1] >> shamt;
                         break;
                 }
                 break;
             case 0x6://ori
                 printf("ori x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
-                fprintf(out,"ori x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
+                fprintf(out,"ori \tx%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
                 X[rd] = X[rs1] | sign_Extend(imm,11);
                 break;
             case 0x7://andi
                 printf("andi x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
-                fprintf(out,"andi x%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
+                fprintf(out,"andi \tx%d, x%d, %d\n",rd,rs1,sign_Extend(imm,11));
                 X[rd] = X[rs1] & sign_Extend(imm,11);
                 break;
             }
@@ -229,34 +231,34 @@ int main(){
             case 0x0: //lb
                 //Sign extend only first byte of data from memory,
                 printf("lb x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"lb x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"lb  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 X[rd] = sign_Extend((mem[addr]) & 0xFF,7);
                 break;
             case 0x1://lh
                 //Sign extend second byte of data from memory,
                 printf("lh x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"lh x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"lh  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 X[rd] = sign_Extend(mem[addr] | (mem[addr + 1] << 8),15);
                 break;
             case 0x2://lw
                 printf("lw x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"lw x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"lw  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 X[rd] = mem[addr] | (mem[addr+1]<<8) | (mem[addr+2]<<16) | (mem[addr+3]<<24);
                 break;
             case 0x4://lbu
                 //Extract 1 byte
                 printf("lbu x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"lbu x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"lbu  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 X[rd] = mem[addr] & 0xFF;
                 break;
             case 0x5://lhu
                 //Extract 2 bytes
                 printf("lhu x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"lhu x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"lhu \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 X[rd] = (mem[addr] | (mem[addr + 1] << 8)) & 0xFFFF;
                 break;
@@ -273,7 +275,7 @@ int main(){
         
         case 0x67://I-type opcode=b1100111 -jalr
             printf("jalr x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-            fprintf(out,"jalr x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+            fprintf(out,"jalr \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
             X[rd] = pc + 4;
             pc = (X[rs1] + sign_Extend(imm,11)) & ~0x1;
             break;
@@ -284,7 +286,7 @@ int main(){
             imm = (((instr >> 31) & 0x1) << 20) | (((instr >> 12) & 0xFF) << 12) | (((instr >> 20) & 0x1) << 11) | (((instr >> 21) & 0x3FF) << 1);
             pc = pc + (sign_Extend(imm,20));
             printf("jal x%d, %d", rd, sign_Extend(imm,20));
-            fprintf(out,"jal x%d, %d", rd, sign_Extend(imm,20));
+            fprintf(out,"jal \tx%d, %d", rd, sign_Extend(imm,20));
             break;
         
         case 0x23://S-type opcode=b0100011
@@ -292,20 +294,20 @@ int main(){
             switch(funct3){
             case 0x0: //sb
                 printf("sb x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"sb x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"sb  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 break;
             case 0x1: //sh 
                 printf("sh x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"sh x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"sh  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 mem[addr+1] = (X[rs2] >> 8) & 0xFF;
                 break;
             case 0x2: //sw
                 printf("sw x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"sw x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                fprintf(out,"sw  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 mem[addr+1] = (X[rs2] >> 8) & 0xFF;
@@ -323,32 +325,32 @@ int main(){
             switch(funct3){
             case 0x0: //beq rs1==rs2
                 printf("beq x%d, x%d, %d\n",rs1,rs2,imm);
-                fprintf(out,"beq x%d, x%d, %d\n",rs1,rs2,imm);
+                fprintf(out,"beq \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = (X[rs1] == X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x1: //bne rs1!=rs2
                 printf("bne x%d, x%d, %d\n",rs1,rs2,imm);
-                fprintf(out,"bne x%d, x%d, %d\n",rs1,rs2,imm);
+                fprintf(out,"bne \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = (X[rs1] != X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x4: //blt rs1 < rs2 signed
                 printf("blt x%d, x%d, %d\n",rs1,rs2,imm);
-                fprintf(out,"blt x%d, x%d, %d\n",rs1,rs2,imm);
+                fprintf(out,"blt \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = (X[rs1] < X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x5: //bge rs1 >= rs2 signed
                 printf("bge x%d, x%d, %d\n",rs1,rs2,imm);
-                fprintf(out,"bge x%d, x%d, %d\n",rs1,rs2,imm);
+                fprintf(out,"bge \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = (X[rs1] >= X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x6: // bltu rs1 < rs2 unsigned
                 printf("bltu x%d, x%d, %d\n",rs1,rs2,imm);
-                fprintf(out,"bltu x%d, x%d, %d\n",rs1,rs2,imm);
+                fprintf(out,"bltu \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = ((unsigned int)X[rs1] < (unsigned int)X[rs2]) ? pc + imm : pc + 4;
                 break;
             case 0x7: //bgeu rs1 >= rs2 unsigned
                 printf("bgeu x%d, x%d, %d\n",rs1,rs2,imm);
-                fprintf(out,"bgeu x%d, x%d, %d\n",rs1,rs2,imm);
+                fprintf(out,"bgeu \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = ((unsigned int)X[rs1] >= (unsigned int)X[rs2]) ? pc + imm : pc + 4;
                 break;
             }
@@ -357,14 +359,14 @@ int main(){
         case 0x37: //U-type opcode=b0110111 - lui
         // lui - load upper immediate rd = imm << 12
             printf("lui x%d, %#07x\n",rd,(instr & 0xFFFFF000) >> 12);
-            fprintf(out,"lui x%d, %#07x\n",rd,(instr & 0xFFFFF000) >> 12);
+            fprintf(out,"lui \tx%d, %#07x\n",rd,(instr & 0xFFFFF000) >> 12);
             X[rd] = instr & 0xFFFFF000;
             pc += 4;
             break;
         case 0x17: //U-type opcode=b0010111 - auipc
             // auipc - Add upper immediate to pc. rd = pc + (imm << 12)
             printf("auipc x%d, %#07x\n",rd,(instr & 0xFFFFF000) >> 12);
-            fprintf(out,"auipc x%d, %#07x\n",rd,(instr & 0xFFFFF000) >> 12);
+            fprintf(out,"auipc \tx%d, %#07x\n",rd,(instr & 0xFFFFF000) >> 12);
             X[rd] = pc + (instr & 0xFFFFF000);
             pc += 4;
             break;
