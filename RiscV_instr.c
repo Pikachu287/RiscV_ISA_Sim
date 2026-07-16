@@ -23,23 +23,24 @@ int sign_Extend(int n, int size_bit){
 
 
 int main(){
+    //Initialize all 32 reg to 0
     int X[32] = {};
-    int instructions[] = {
-        0x00200093, // addi x1 x0 2
-        0x002081b3, // add x3 x1 x2
-        0x00300113, // addi x2 x0 3
-        0x00811213, // slli x4 x2 8
-        0x00125213, // srli x4 x4 1
-        0x00202023, // sw x2, 0(x0)
-        0x00002503, // lw x10, 0(x0)
-        0x004000a3, // sb x4, 1(x0)
-        0x00102583 // lw x11, 1(x0)
-    };
+    // int instructions[] = {
+    //     0x00200093, // addi x1 x0 2
+    //     0x002081b3, // add x3 x1 x2
+    //     0x00300113, // addi x2 x0 3
+    //     0x00811213, // slli x4 x2 8
+    //     0x00125213, // srli x4 x4 1
+    //     0x00202023, // sw x2, 0(x0)
+    //     0x00002503, // lw x10, 0(x0)
+    //     0x004000a3, // sb x4, 1(x0)
+    //     0x00102583 // lw x11, 1(x0)
+    // };
     
     //MEM alloc
     unsigned char *mem = (unsigned char *) malloc(1024*1024); //1MB
     if (mem == NULL){
-        printf("Memory allocation failed\n");
+        perror("Memory allocation failed");
         return 1;
     }
     int pc = 0;
@@ -66,7 +67,7 @@ int main(){
             break;
         }
         // printf("PC: %d instruction %#010x Decimal: %d\n",pc,instr,instr);
-        // instr = instructions[pc >> 2];
+        
 
         //uni / Default placement of part instructions
         int opcode = instr & 0x7F;
