@@ -44,10 +44,26 @@ int main(){
     }
     int pc = 0;
     
+    FILE *fptr;
+    fptr = fopen("C:\\Users\\chris\\OneDrive - Danmarks Tekniske Universitet\\Bachelor\\3 Semester\\ComputerArkitektur\\RiscV_ISA_Sim\\instructions.bin", "rb");
+    if (fptr == NULL) {
+        perror("Error opening file");
+        return EXIT_FAILURE;
+    }
     
-    
+    int instr;
     while (1){
-        int instr = instructions[pc >> 2];
+        
+        if (fseek(fptr, (long) pc, SEEK_SET) != 0) {
+            printf("Cant seek");
+        }
+        if (fread(&instr,4,1,fptr) != 1){
+            printf("can read");
+        }
+        printf("PC: %d instruction %#010x Decimal: %d\n",pc,instr,instr);
+
+        instr = instructions[pc >> 2];
+        
 
         //uni / Default placement of part instructions
         int opcode = instr & 0x7F;
@@ -263,7 +279,8 @@ int main(){
             break;
         
         
-        default:
+        default: //If unrecognized OPCODE, skip instruction.
+            pc += 4;
             break;
         }
         
