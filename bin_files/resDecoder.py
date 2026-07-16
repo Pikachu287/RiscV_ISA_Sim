@@ -57,7 +57,10 @@ def format_output(values):
         # Show as unsigned 32-bit hex too, since register contents are
         # often easier to read in hex (addresses, bit patterns, etc.)
         hex_val = v & 0xFFFFFFFF
-        lines.append(f"x{i:<2}  =  {v:>12}   (0x{hex_val:08x})")
+        if chr(v) == '\n':
+            lines.append(f"x{i:<2}  =  {v:>12}   (0x{hex_val:08x})  ASCII = \\n")
+        else:
+            lines.append(f"x{i:<2}  =  {v:>12}   (0x{hex_val:08x})  ASCII = {chr(v)}")
     return "\n".join(lines)
 
 

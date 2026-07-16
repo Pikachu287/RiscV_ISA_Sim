@@ -57,7 +57,7 @@ int main(){
     
     // fptr = fopen("C:\\Users\\chris\\OneDrive - Danmarks Tekniske Universitet\\Bachelor\\3 Semester\\ComputerArkitektur\\RiscV_ISA_Sim\\instructions.bin", "rb");
     
-    instr_f = fopen("bin_files\\loop.bin", "rb");
+    instr_f = fopen("bin_files\\string.bin", "rb");
     if (instr_f == NULL) {
         perror("Error opening file");
         return EXIT_FAILURE;
