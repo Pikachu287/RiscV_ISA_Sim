@@ -56,7 +56,8 @@ int main(){
     FILE *instr_f;
     
     // fptr = fopen("C:\\Users\\chris\\OneDrive - Danmarks Tekniske Universitet\\Bachelor\\3 Semester\\ComputerArkitektur\\RiscV_ISA_Sim\\instructions.bin", "rb");
-    instr_f = fopen("instructions.bin", "rb");
+    
+    instr_f = fopen("bin_files\\instructions.bin", "rb");
     if (instr_f == NULL) {
         perror("Error opening file");
         return EXIT_FAILURE;
@@ -75,7 +76,8 @@ int main(){
     fprintf(out, "________________________________________________________________\n");
     
     int instr;
-    while (1){
+    int running = 1;
+    while (running){
         
         
         if (fseek(instr_f, (long) pc, SEEK_SET) != 0) {
@@ -271,6 +273,7 @@ int main(){
             printf("ecall / ebreak\n");
             fprintf(out,"ecall / ebreak\n");
             pc += 4;
+            running = 0;
             break;
         
         case 0x67://I-type opcode=b1100111 -jalr

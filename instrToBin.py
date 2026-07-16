@@ -46,6 +46,6 @@ instructions = [
     # 0x010000EF, #J-type jal    
 ]
 # Convert all instructions to instructions.bin file
-with open("instructions.bin", "wb") as f:
+with open("bin_files//instructions.bin", "wb") as f:
     for instr in instructions:
         f.write(struct.pack("<I", instr))
