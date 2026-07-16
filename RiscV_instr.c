@@ -50,20 +50,23 @@ int main(){
         perror("Error opening file");
         return EXIT_FAILURE;
     }
+    fseek(fptr, 0, SEEK_END);
+    int instr_len = ftell(fptr);
+    printf("Length of instructions in bytes: %d\n",instr_len);
     
     int instr;
     while (1){
         
         if (fseek(fptr, (long) pc, SEEK_SET) != 0) {
-            printf("Cant seek");
+            perror("End of file reached");
+            break;
         }
         if (fread(&instr,4,1,fptr) != 1){
-            printf("can read");
+            perror("Can't read instruction");
+            break;
         }
-        printf("PC: %d instruction %#010x Decimal: %d\n",pc,instr,instr);
-
-        instr = instructions[pc >> 2];
-        
+        // printf("PC: %d instruction %#010x Decimal: %d\n",pc,instr,instr);
+        // instr = instructions[pc >> 2];
 
         //uni / Default placement of part instructions
         int opcode = instr & 0x7F;
@@ -284,7 +287,7 @@ int main(){
             break;
         }
         
-        if (pc >= sizeof(instructions)) break;
+        if (pc >= instr_len) break;
     }
     //prints all values of all registers.
     for (int i = 0; i < sizeof(X)/sizeof(X[0]);i++){
