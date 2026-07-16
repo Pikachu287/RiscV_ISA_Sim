@@ -38,8 +38,8 @@ int main(){
     //     0x00102583 // lw x11, 1(x0)
     // };
     
-    //MEM alloc
-    unsigned char *mem = (unsigned char *) malloc(1024*1024); //1MB
+    //MEM alloc zero initialized
+    unsigned char *mem = (unsigned char *) calloc(1024*1024, 1); //1MB
     if (mem == NULL){
         perror("Memory allocation failed");
         return 1;
@@ -57,7 +57,7 @@ int main(){
     
     // fptr = fopen("C:\\Users\\chris\\OneDrive - Danmarks Tekniske Universitet\\Bachelor\\3 Semester\\ComputerArkitektur\\RiscV_ISA_Sim\\instructions.bin", "rb");
     
-    instr_f = fopen("bin_files\\instructions.bin", "rb");
+    instr_f = fopen("bin_files\\loop.bin", "rb");
     if (instr_f == NULL) {
         perror("Error opening file");
         return EXIT_FAILURE;
@@ -164,8 +164,8 @@ int main(){
                 X[rd] = X[rs1] | X[rs2];
                 break;
             case 0x7: //AND
-                printf("or x%d, x%d, x%d\n",rd,rs1,rs2);
-                fprintf(out,"or  \tx%d, x%d, x%d\n",rd,rs1,rs2);
+                printf("and x%d, x%d, x%d\n",rd,rs1,rs2);
+                fprintf(out,"and  \tx%d, x%d, x%d\n",rd,rs1,rs2);
                 X[rd] = X[rs1] & X[rs2];
                 break;
             }
@@ -288,29 +288,29 @@ int main(){
             X[rd] = pc + 4;
             imm = (((instr >> 31) & 0x1) << 20) | (((instr >> 12) & 0xFF) << 12) | (((instr >> 20) & 0x1) << 11) | (((instr >> 21) & 0x3FF) << 1);
             pc = pc + (sign_Extend(imm,20));
-            printf("jal x%d, %d", rd, sign_Extend(imm,20));
-            fprintf(out,"jal \tx%d, %d", rd, sign_Extend(imm,20));
+            printf("jal x%d, %d\n", rd, sign_Extend(imm,20));
+            fprintf(out,"jal \tx%d, %d\n", rd, sign_Extend(imm,20));
             break;
         
         case 0x23://S-type opcode=b0100011
             imm = (funct7 << 5) | rd; //12bit imm for type-S/B instructions
             switch(funct3){
             case 0x0: //sb
-                printf("sb x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"sb  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                printf("sb x%d, %d(x%d)\n",rs2,sign_Extend(imm,11),rs1);
+                fprintf(out,"sb  \tx%d, %d(x%d)\n",rs2,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 break;
             case 0x1: //sh 
-                printf("sh x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"sh  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                printf("sh x%d, %d(x%d)\n",rs2,sign_Extend(imm,11),rs1);
+                fprintf(out,"sh  \tx%d, %d(x%d)\n",rs2,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 mem[addr+1] = (X[rs2] >> 8) & 0xFF;
                 break;
             case 0x2: //sw
-                printf("sw x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
-                fprintf(out,"sw  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
+                printf("sw x%d, %d(x%d)\n",rs2,sign_Extend(imm,11),rs1);
+                fprintf(out,"sw  \tx%d, %d(x%d)\n",rs2,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
                 mem[addr] = X[rs2] & 0xFF;
                 mem[addr+1] = (X[rs2] >> 8) & 0xFF;
@@ -356,7 +356,12 @@ int main(){
                 fprintf(out,"bgeu \tx%d, x%d, %d\n",rs1,rs2,imm);
                 pc = ((unsigned int)X[rs1] >= (unsigned int)X[rs2]) ? pc + imm : pc + 4;
                 break;
+            default:
+                fprintf(out, "Invalid branch funct3: %d\n", funct3);
+                pc = pc + 4;
+                break;
             }
+            
             break;
         
         case 0x37: //U-type opcode=b0110111 - lui
@@ -379,12 +384,12 @@ int main(){
             pc += 4;
             break;
         
-        
         default: //If unrecognized OPCODE, skip instruction.
+            fprintf(out,"SKIPPED INSTRUCTION OPCODE: %#05x\n", opcode);
             pc += 4;
             break;
         }
-        
+        if (X[0] != 0) X[0] = 0;
         if (pc >= instr_len) break;
     }
     //prints all values of all registers.
@@ -393,6 +398,11 @@ int main(){
     for (int i = 0; i < sizeof(X)/sizeof(X[0]);i++){
         printf("Reg: x%d stores: %d\n",i,X[i]);
         fprintf(out,"Reg:  x%d\t stores: %d\n",i,X[i]);
+    }
+    fprintf(out,"\n\n\t\tFirst kb of memory\n");
+    fprintf(out,"____________________________________\n");
+    for (int i = 0; i < 1024;i++){
+        fprintf(out,"Byte:\t%d\tStores:\t%d\n",i,mem[i]);
     }
 
     printf("done");
