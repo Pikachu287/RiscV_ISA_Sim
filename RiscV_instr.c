@@ -71,7 +71,7 @@ int main(){
         return EXIT_FAILURE;
     }
     fprintf(out, "Dump of all instructions and register values\n");
-    fprintf(out, "INST----rd, rs1/2/imm\n");
+    fprintf(out, "INST\trd, rs1/2/imm\n");
     fprintf(out, "________________________________________________________________\n");
     
     int instr;
