@@ -46,10 +46,11 @@ int main(){
     }
     int pc = 0;
     //Directory
-    char cwd[PATH_MAX];
+    char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
        printf("Current working dir: %s\n", cwd);
     } else {
+        printf("Here5");
        perror("getcwd() error");
     }
     //File opening
@@ -57,11 +58,16 @@ int main(){
     
     // fptr = fopen("C:\\Users\\chris\\OneDrive - Danmarks Tekniske Universitet\\Bachelor\\3 Semester\\ComputerArkitektur\\RiscV_ISA_Sim\\instructions.bin", "rb");
     
-    instr_f = fopen("bin_files\\string.bin", "rb");
+    // instr_f = fopen("bin_files\\string.bin", "rb");
+    instr_f = fopen("bin_files/string.bin", "rb");
+
+    printf("Here\n");
     if (instr_f == NULL) {
+        printf("Here7\n");
         perror("Error opening file");
         return EXIT_FAILURE;
     }
+    printf("Here2");
     fseek(instr_f, 0, SEEK_END);
     int instr_len = ftell(instr_f);
     printf("Length of instructions in bytes: %d\n",instr_len);
