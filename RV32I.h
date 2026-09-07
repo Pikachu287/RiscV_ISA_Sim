@@ -61,9 +61,23 @@ typedef enum {
     JAL,
     S_Type,
     B_Type,
-    U_Type,
-    FENCE
-}inst_type;
+    LUI,
+    AUIPC,
+    FENCE,
+    UNKNOWN
+}Inst_type;
+#define OPC_R 0x33
+#define OPC_I 0x13
+#define OPC_L 0x3
+#define OPC_ECALL 0x73
+#define OPC_JALR 0x67
+#define OPC_JAL 0x6F
+#define OPC_S 0x23
+#define OPC_B 0x63
+#define OPC_LUI 0x37
+#define OPC_AUIPC 0x17
+#define OPC_FENCE 0xFF
+
 
 typedef struct {
     UINT32_T raw;
@@ -73,12 +87,15 @@ typedef struct {
     UINT8_T rd;
     UINT8_T rs1;
     UINT8_T rs2;
-    UINT32_T imm;
-    inst_type type;
+    SINT32_T imm;
+    Inst_type type;
 
 }Instruction;
 
+SINT32_T sign_Extend(SINT32_T n, SINT32_T extend_bit);
+Inst_type decode_Opcode(UINT8_T opcode);
 Instruction decode_Instruction(UINT32_T raw_instruction);
+void print_type(Inst_type type);
 
 
 void execute(CPU * cpu, Instruction * inst);
