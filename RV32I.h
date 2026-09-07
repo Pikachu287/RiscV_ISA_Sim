@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 
@@ -48,6 +49,13 @@ void destroy_memory(Memory * mem);
 
 CPU *create_CPU(Memory *mem);
 void destroy_CPU(CPU *cpu);
+
+void save_byte(Memory * mem, UINT32_T adress, UINT8_T val);
+void save_half(Memory * mem, UINT32_T adress, UINT16_T val);
+void save_word(Memory * mem, UINT32_T adress, UINT32_T val);
+SINT8_T load_byte(Memory * mem, UINT32_T adress);
+SINT16_T load_half(Memory * mem, UINT32_T adress);
+SINT32_T load_word(Memory * mem, UINT32_T adress);
 
 //--------------------------------------------------------------------------------------
 //Instruction decoding
@@ -96,6 +104,21 @@ SINT32_T sign_Extend(SINT32_T n, SINT32_T extend_bit);
 Inst_type decode_Opcode(UINT8_T opcode);
 Instruction decode_Instruction(UINT32_T raw_instruction);
 void print_type(Inst_type type);
+
+//---------------------------------------------------------------------------------------------------------
+//Program execution
+void execute_R(CPU * cpu, Instruction * inst);
+void execute_I(CPU * cpu, Instruction * inst);
+void execute_L(CPU * cpu, Instruction * inst);
+void execute_ECALL(CPU * cpu, Instruction * inst);
+void execute_JALR(CPU * cpu, Instruction * inst);
+void execute_JAL(CPU * cpu, Instruction * inst);
+void execute_S(CPU * cpu, Instruction * inst);
+void execute_B(CPU * cpu, Instruction * inst);
+void execute_LUI(CPU * cpu, Instruction * inst);
+void execute_AUIPC(CPU * cpu, Instruction * inst);
+void execute_FENCE(CPU * cpu, Instruction * inst);
+
 
 
 void execute(CPU * cpu, Instruction * inst);
