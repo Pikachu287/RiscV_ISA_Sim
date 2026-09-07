@@ -248,13 +248,13 @@ int main(){
                 printf("lh x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 fprintf(out,"lh  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
-                X[rd] = sign_Extend(mem[addr] | (mem[addr + 1] << 8),15);
+                X[rd] = sign_Extend(mem[addr] | (mem[addr + 1] << 8),15); //Little endian
                 break;
             case 0x2://lw
                 printf("lw x%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 fprintf(out,"lw  \tx%d, %d(x%d)\n",rd,sign_Extend(imm,11),rs1);
                 addr = X[rs1] + sign_Extend(imm,11);
-                X[rd] = mem[addr] | (mem[addr+1]<<8) | (mem[addr+2]<<16) | (mem[addr+3]<<24);
+                X[rd] = mem[addr] | (mem[addr+1]<<8) | (mem[addr+2]<<16) | (mem[addr+3]<<24); //Little endian
                 break;
             case 0x4://lbu
                 //Extract 1 byte
