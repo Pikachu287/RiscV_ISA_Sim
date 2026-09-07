@@ -13,6 +13,7 @@ TODO:
     - baseaddress (I guess)
     - Size (1MB)
 - Mem read/write functions for 8/16/32 bit sizes
+- CPU initialized with memory adress saved in x2(Stack pointer)
 - Instruction Typedef - Not neccesary but kinda nice
     - raw data (32bit raw instruction)
     - format (R/S/I/...) (Maybe needed for differentiating function calls)
