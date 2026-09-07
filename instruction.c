@@ -78,11 +78,9 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
     inst.type = decode_Opcode(inst.opcode);
     inst.imm = 0;
     //Specific imm based on the instruction type.
-    printf("Done all basics\n");
     SINT32_T temp;
     switch(inst.type){
         case R_Type:
-            printf("R\n");
             break;
         case I_Type:
             inst.imm = sign_Extend((raw_instruction >> 20) & 0xFFF,11); // 12bit MSB - sign extended
