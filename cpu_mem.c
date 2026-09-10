@@ -142,8 +142,9 @@ void execute_R(CPU * cpu, Instruction * inst){
         default:
            printf("UNKNOWN R funct3 code %#02x\n",inst->funct3);
             break;
-
     }
+    //R-type is linear (pc+4)
+    cpu->PC = cpu->PC + 4;
 }
 
 void execute_I(CPU * cpu, Instruction * inst){
@@ -193,7 +194,8 @@ void execute_I(CPU * cpu, Instruction * inst){
             printf("UNKNOWN I funct3 code %#02x\n",inst->funct3);
             break;
     }
-
+    //I-type is linear (pc+4)
+    cpu->PC = cpu->PC + 4;
 }
 
 void execute_L(CPU * cpu, Instruction * inst){
@@ -223,9 +225,14 @@ void execute_L(CPU * cpu, Instruction * inst){
         printf("UNKNOWN L funct3 code %#02x\n",inst->funct3);
         break;
     }
+    //Load: I-type is linear (pc+4)
+    cpu->PC = cpu->PC + 4;
 }
 
 void execute_ECALL(CPU * cpu, Instruction * inst){
+    //Add 4 to PC even for an ecall or ebreak
+    cpu->PC = cpu->PC + 4;
+
     if (inst->imm == 0x001){//Check if bit 0 (of imm) is set for ebreak instead of ecall
         printf("EBREAK\n");
         cpu->running = 0;
@@ -266,6 +273,8 @@ void execute_S(CPU * cpu, Instruction * inst){
         printf("UNKNOWN S funct3 code %#02x\n",inst->funct3);
         break;
     }
+    //S-type is linear (pc+4)
+    cpu->PC = cpu->PC + 4;
 }
 
 void execute_B(CPU * cpu, Instruction * inst){
@@ -296,6 +305,8 @@ void execute_B(CPU * cpu, Instruction * inst){
         break;
     default:
         printf("UNKNOWN B funct3 code %#02x\n",inst->funct3);
+        //if unknown B funct3, then pc + 4
+        cpu->PC = cpu->PC + 4;
         break;
     }
 }
@@ -303,15 +314,21 @@ void execute_B(CPU * cpu, Instruction * inst){
 void execute_LUI(CPU * cpu, Instruction * inst){
     printf("lui x%d, %#07x\n",inst->rd,inst->imm);
     cpu->X[inst->rd] = inst->imm;
+    //LUI is linear (pc+4)
+    cpu->PC = cpu->PC + 4;
 }
 
 void execute_AUIPC(CPU * cpu, Instruction * inst){
     printf("auipc x%d, %#07x\n",inst->rd,inst->imm);
     cpu->X[inst->rd] = cpu->PC + inst->imm;
+    //AUIPC is linear (pc+4) even though it uses pc.
+    cpu->PC = cpu->PC + 4;
 }
 
 void execute_FENCE(CPU * cpu, Instruction * inst){
     printf("FENCE not implemented\n");
+    //Don't know the fuck what FENCE is, but just skip that shiiii.
+    cpu->PC = cpu->PC + 4;
 }
 
 
@@ -344,7 +361,7 @@ void execute(CPU * cpu, Instruction * inst){
             execute_FENCE(cpu, inst);
         case UNKNOWN:
             printf("UNKOWN OPCODE\n");
-            
+            cpu->PC = cpu->PC + 4;
         default:
             break;
     }
