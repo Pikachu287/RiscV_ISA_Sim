@@ -272,21 +272,27 @@ void execute_B(CPU * cpu, Instruction * inst){
     switch (inst->funct3){
     case 0x0://beq - branch when rs1==rs2
         printf("beq x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        cpu->PC = (cpu->X[inst->rs1] == cpu->X[inst->rs2]) ? cpu->PC + inst->imm : cpu->PC + 4;
         break;
     case 0x1://bne - branch when rs1!=rs2
         printf("bne x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        cpu->PC = (cpu->X[inst->rs1] != cpu->X[inst->rs2]) ? cpu->PC + inst->imm : cpu->PC + 4;
         break;
     case 0x4://blt - branch when rs1 < rs2 signed
         printf("blt x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        cpu->PC = ((SINT32_T)cpu->X[inst->rs1] < (SINT32_T)cpu->X[inst->rs2]) ? cpu->PC + inst->imm : cpu->PC + 4;
         break;
     case 0x5://bge - branch when rs1 >= rs2 signed
         printf("bge x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        cpu->PC = ((SINT32_T)cpu->X[inst->rs1] >= (SINT32_T)cpu->X[inst->rs2]) ? cpu->PC + inst->imm : cpu->PC + 4;
         break;
     case 0x6://bltu - branch when rs1 < rs2 unsigned
         printf("bltu x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        cpu->PC = (cpu->X[inst->rs1] < cpu->X[inst->rs2]) ? cpu->PC + inst->imm : cpu->PC + 4;
         break;
     case 0x7://bgeu - branch when rs1 >= rs2 unsigned
         printf("bgeu x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        cpu->PC = (cpu->X[inst->rs1] >= cpu->X[inst->rs2]) ? cpu->PC + inst->imm : cpu->PC + 4;
         break;
     default:
         printf("UNKNOWN B funct3 code %#02x\n",inst->funct3);
