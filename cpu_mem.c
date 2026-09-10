@@ -108,7 +108,7 @@ void execute_R(CPU * cpu, Instruction * inst){
             cpu->X[inst->rd] = cpu->X[inst->rs1] & cpu->X[inst->rs2];
             break;
         default:
-            printf("Unknown R Instruction\tfunct3:%d\n",inst->funct3);
+           printf("UNKNOWN R funct3 code %#02x\n",inst->funct3);
             break;
 
     }
@@ -158,42 +158,97 @@ void execute_I(CPU * cpu, Instruction * inst){
             cpu->X[inst->rd] = cpu->X[inst->rs1] & inst->imm;
             break;
         default:
-            printf("UNKNOWN funct3 code %d\n",inst->funct3);
+            printf("UNKNOWN I funct3 code %#02x\n",inst->funct3);
             break;
     }
 
 }
 
 void execute_L(CPU * cpu, Instruction * inst){
-
+    switch (inst->funct3){
+    case 0x0://lb
+        printf("lb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    case 0x1://lh
+        printf("lh x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    case 0x2://lw
+        printf("lw x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    case 0x4://lbu
+        printf("lbu x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    case 0x5://lhu
+        printf("lhu x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    default:
+        printf("UNKNOWN L funct3 code %#02x\n",inst->funct3);
+        break;
+    }
 }
 
 void execute_ECALL(CPU * cpu, Instruction * inst){
-
+    printf("ECALL %d", cpu->X[17]);//Check a7 for syscall/ecall variable
 }
 
 void execute_JALR(CPU * cpu, Instruction * inst){
-
+    printf("jalr x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
 }
 
 void execute_JAL(CPU * cpu, Instruction * inst){
+    printf("jal x%d, %d\n",inst->rd,inst->imm);
 
 }
 
 void execute_S(CPU * cpu, Instruction * inst){
-
+    switch (inst->funct3){
+    case 0x0://sb
+        printf("sb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    case 0x1://sh
+        printf("sh x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    case 0x2://sw
+        printf("sw x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        break;
+    default:
+        printf("UNKNOWN S funct3 code %#02x\n",inst->funct3);
+        break;
+    }
 }
 
 void execute_B(CPU * cpu, Instruction * inst){
-
+    switch (inst->funct3){
+    case 0x0://beq - branch when rs1==rs2
+        printf("beq x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        break;
+    case 0x1://bne - branch when rs1!=rs2
+        printf("bne x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        break;
+    case 0x4://blt - branch when rs1 < rs2 signed
+        printf("blt x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        break;
+    case 0x5://bge - branch when rs1 >= rs2 signed
+        printf("bge x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        break;
+    case 0x6://bltu - branch when rs1 < rs2 unsigned
+        printf("bltu x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        break;
+    case 0x7://bgeu - branch when rs1 >= rs2 unsigned
+        printf("bgeu x%d, x%d, %d\n",inst->rs1,inst->rs2,inst->imm);
+        break;
+    default:
+        printf("UNKNOWN B funct3 code %#02x\n",inst->funct3);
+        break;
+    }
 }
 
 void execute_LUI(CPU * cpu, Instruction * inst){
-
+    printf("lui x%d, %#07x\n",inst->rd,inst->imm);
 }
 
 void execute_AUIPC(CPU * cpu, Instruction * inst){
-
+    printf("auipc x%d, %#07x\n",inst->rd,inst->imm);
 }
 
 void execute_FENCE(CPU * cpu, Instruction * inst){

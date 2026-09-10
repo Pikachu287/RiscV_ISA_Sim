@@ -63,7 +63,7 @@ SINT32_T load_word(Memory * mem, UINT32_T adress);
 typedef enum {
     R_Type,
     I_Type,
-    L_Type,
+    L_Type,//Is actually I-type but for readability L-type is used for load type operations
     ECALL,
     JALR,
     JAL,

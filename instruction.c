@@ -110,9 +110,11 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
             (((raw_instruction >> 8) & 0xF) << 1);
             inst.imm = sign_Extend(temp,12);
             break;
-        case LUI://NO IMM USED
+        case LUI:
+            inst.imm = ((raw_instruction >> 12) & 0xFFFFF) << 12;
             break;
-        case AUIPC://NO IMM USED
+        case AUIPC:
+            inst.imm = ((raw_instruction >> 12) & 0xFFFFF) << 12;
             break;
         case FENCE://NO IMM USED
             break;
