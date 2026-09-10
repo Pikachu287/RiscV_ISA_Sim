@@ -6,7 +6,10 @@ Memory * create_memory(UINT32_T size, UINT32_T base_adress){
     mem->data = calloc(size, 1); //Zero initialised data
     mem->base = base_adress;
     mem ->size = size;
+    
+    
     printf("Memory initialized with size: %d bytes - (%d KB) - (%d MB)\n", size, size / 1000, size / 1000000);
+    printf("Memory adress base: 0x%#08x\n",mem->base);
     return mem;
 }
 
@@ -27,40 +30,58 @@ void destroy_CPU(CPU *cpu){
 }
 
 void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
-    if (adress >mem->size) printf("Illegal adress\n"); return;
-    memcpy(&mem->data[adress],&val,1);
+    if (adress > mem->size) {
+        printf("Illegal adress\n");
+        return;
+    }
+    memcpy(&mem->data[adress + mem->base],&val,1);
 }
 
 void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
-    if ((adress+1) >mem->size) printf("Illegal adress\n"); return;
-    memcpy(&mem->data[adress],&val,2);
+    if ((adress+1) > mem->size) {
+        printf("Illegal adress\n");
+        return;
+    }
+    memcpy(&mem->data[adress + mem->base],&val,2);
 }
 
 void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
-    if ((adress+3) >mem->size) printf("Illegal adress\n"); return;
-    memcpy(&mem->data[adress],&val,4);
+    if ((adress+3) > mem->size) {
+        printf("Illegal adress\n");
+        return;
+    }
+    memcpy(&mem->data[adress + mem->base],&val,4);
 }
 
-SINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){
+UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     //Little endian
-    if (adress >mem->size) printf("Illegal adress\n"); return -1;
+    if (adress > mem->size) {
+        printf("Illegal adress\n");
+        return 0;
+    }
     if (use_extend){
         return sign_Extend(mem->data[adress],7);
     }
     return mem->data[adress],7;
 }
 
-SINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
+UINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     //Little endian
-    if (adress+1 >mem->size) printf("Illegal adress\n"); return -1;
+    if ((adress+1) > mem->size) {
+        printf("Illegal adress\n");
+        return 0;
+    }
     if (use_extend){
         return sign_Extend((mem->data[adress] << 8) | (mem->data[adress+1]),15);
     }
     return (mem->data[adress] << 8) | (mem->data[adress+1]);
 }
 
-SINT32_T load_word(Memory * mem, UINT32_T adress){
-    if (adress+3 >mem->size) printf("Illegal adress\n"); return -1;
+UINT32_T load_word(Memory * mem, UINT32_T adress){
+    if ((adress+3) > mem->size) {
+        printf("Illegal adress\n");
+        return 0;
+    }
     return ((UINT32_T)mem->data[adress+3] << 24) | ((UINT32_T)mem->data[adress+2] << 16) | ((UINT32_T)mem->data[adress+1] << 8) | ((UINT32_T)mem->data[adress]);
 }
 
@@ -173,31 +194,26 @@ void execute_I(CPU * cpu, Instruction * inst){
 }
 
 void execute_L(CPU * cpu, Instruction * inst){
-    UINT32_T address = 0;
+    UINT32_T address = cpu->X[inst->rs1] + inst->imm; //Always just calculate the adress
     switch (inst->funct3){
     case 0x0://lb
         printf("lb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
-        address = cpu->X[inst->rs1] + inst->imm;
         cpu->X[inst->rd] = load_byte(cpu->mem,address,TRUE);
         break;
     case 0x1://lh
         printf("lh x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
-        address = cpu->X[inst->rs1] + inst->imm;
         cpu->X[inst->rd] = load_half(cpu->mem,address,TRUE);
         break;
     case 0x2://lw
         printf("lw x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
-        address = cpu->X[inst->rs1] + inst->imm;
         cpu->X[inst->rd] = load_word(cpu->mem,address);
         break;
     case 0x4://lbu
         printf("lbu x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
-        address = cpu->X[inst->rs1] + inst->imm;
         cpu->X[inst->rd] = load_byte(cpu->mem,address,FALSE);
         break;
     case 0x5://lhu
         printf("lhu x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
-        address = cpu->X[inst->rs1] + inst->imm;
         cpu->X[inst->rd] = load_half(cpu->mem,address,FALSE);
         break;
     default:
@@ -229,6 +245,7 @@ void execute_JAL(CPU * cpu, Instruction * inst){
 }
 
 void execute_S(CPU * cpu, Instruction * inst){
+    UINT32_T adress = cpu->X[inst->rs1] + inst->imm;
     switch (inst->funct3){
     case 0x0://sb
         printf("sb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);

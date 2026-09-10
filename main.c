@@ -37,11 +37,40 @@ int main(){
     };
 
 
-    Memory * mem = create_memory(1024 * 1024, 0x0);
+    Memory * mem = create_memory(1024, 0x0);
     CPU * cpu = create_CPU(mem);
     Instruction inst1 = decode_Instruction(0x00200093);
+    save_byte(mem, 0x10, 0x12);
+    save_half(mem, 0x20, 0x1234);
+    save_word(mem, 0x30, 0x12345678);
+    // printf("All mem:",mem->size);
+    for (int i = 0; i < mem->size-100;i++){
+        if (mem->data[i] != 0){
+            printf("Mem_Byte: %#04x\t has\t%#02x\n",i,mem->data[i]);
+        }
+        
+    }
+    printf("CPU REG x%d has value %#08x\n",5,cpu->X[5]);
+    cpu->X[5] = load_word(cpu->mem,0x30);
+    printf("CPU REG x%d has value %#08x\n",5,cpu->X[5]);
+
+
+
+    printf("Done printing\n");
+    // printf("%d\n",mem->data[0]);
+    // printf("%d\n",mem->data[1]);
+    // printf("%d\n",mem->data[2]);
+    // printf("%d\n",mem->data[3]);
     // printf("Hex: %#010x\n",inst1.raw);
     // print_type(inst1.type);
-
+    // UINT32_T value = 0x12345678;
+    
+    // UINT8_T * another[4] = {};
+    // printf("%d\n",sizeof(another[0]));
+    // memcpy(&another,&value,4);
+    // printf("%d\n",sizeof(another[0]));
+    // for (int i = 0; i < 4; i++){
+    //     printf("Value:  %#08x\n",another[i]);
+    // }
     return 0;
 }

@@ -55,9 +55,9 @@ void destroy_CPU(CPU *cpu);
 void save_byte(Memory * mem, UINT32_T adress, UINT8_T val);
 void save_half(Memory * mem, UINT32_T adress, UINT16_T val);
 void save_word(Memory * mem, UINT32_T adress, UINT32_T val);
-SINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend);
-SINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend);
-SINT32_T load_word(Memory * mem, UINT32_T adress);
+UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend);
+UINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend);
+UINT32_T load_word(Memory * mem, UINT32_T adress);
 
 //--------------------------------------------------------------------------------------
 //Instruction decoding
