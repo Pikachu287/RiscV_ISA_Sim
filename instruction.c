@@ -80,7 +80,7 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
     //Specific imm based on the instruction type.
     SINT32_T temp;
     switch(inst.type){
-        case R_Type:
+        case R_Type://NO IMM USED
             break;
         case I_Type:
             inst.imm = sign_Extend((raw_instruction >> 20) & 0xFFF,11); // 12bit MSB - sign extended
@@ -88,7 +88,7 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
         case L_Type:
             inst.imm = sign_Extend((raw_instruction >> 20) & 0xFFF,11);
             break;
-        case ECALL:
+        case ECALL://NO IMM USED
             break;
         case JALR:
             inst.imm = sign_Extend((raw_instruction >> 20) & 0xFFF,11);
@@ -110,11 +110,11 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
             (((raw_instruction >> 8) & 0xF) << 1);
             inst.imm = sign_Extend(temp,12);
             break;
-        case LUI:
+        case LUI://NO IMM USED
             break;
-        case AUIPC:
+        case AUIPC://NO IMM USED
             break;
-        case FENCE:
+        case FENCE://NO IMM USED
             break;
         default: 
             break;

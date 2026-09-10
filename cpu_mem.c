@@ -9,6 +9,7 @@ Memory * create_memory(UINT32_T size, UINT32_T base_adress){
     printf("Memory initialized with size: %d bytes - (%d KB) - (%d MB)\n", size, size / 1000, size / 1000000);
     return mem;
 }
+
 void destroy_memory(Memory * mem){
     free(mem);
 }
@@ -114,6 +115,52 @@ void execute_R(CPU * cpu, Instruction * inst){
 }
 
 void execute_I(CPU * cpu, Instruction * inst){
+    SINT32_T shamt = inst->imm & 0x1F;
+    switch(inst->funct3){
+        case 0x0://ADDI
+            printf("addi x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = cpu->X[inst->rs1] + inst->imm;
+            break;
+        case 0x1://SLLI
+            printf("slli x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = cpu->X[inst->rs1] << shamt;
+            break;
+        case 0x2://SLTI
+            printf("slti x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = ((SINT32_T)cpu->X[inst->rs1] < inst->imm) ? 1 : 0;
+            break;
+        case 0x3://SLTIU
+            printf("sltiu x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = (cpu->X[inst->rs1] < inst->imm) ? 1 : 0;
+            break;
+        case 0x4://XORI
+            printf("xori x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = cpu->X[inst->rs1] ^ inst->imm;
+            break;
+        case 0x5://SRLI eller SRAI
+            switch(inst->funct7){
+                case 0x0: //SRLI - fill upper with 0
+                    printf("srli x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+                    cpu->X[inst->rd] = cpu->X[inst->rs1] >> shamt;
+                    break;
+                case 0x20://SRAI - fill upper with copt of sign bit
+                    printf("srai x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+                    cpu->X[inst->rd] = sign_Extend(cpu->X[inst->rs1] >> shamt,31-shamt);
+                    break;
+            }
+            break;
+        case 0x6://ORI
+            printf("ori x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = cpu->X[inst->rs1] | inst->imm;
+            break;
+        case 0x7://ANDI
+            printf("andi x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+            cpu->X[inst->rd] = cpu->X[inst->rs1] & inst->imm;
+            break;
+        default:
+            printf("UNKNOWN funct3 code %d\n",inst->funct3);
+            break;
+    }
 
 }
 
@@ -150,7 +197,7 @@ void execute_AUIPC(CPU * cpu, Instruction * inst){
 }
 
 void execute_FENCE(CPU * cpu, Instruction * inst){
-
+    printf("FENCE not implemented\n");
 }
 
 
@@ -158,7 +205,34 @@ void execute_FENCE(CPU * cpu, Instruction * inst){
 
 
 void execute(CPU * cpu, Instruction * inst){
-    
+    switch(inst->type){
+        case R_Type:
+            execute_R(cpu, inst);
+        case I_Type:
+            execute_I(cpu, inst);
+        case L_Type:
+            execute_L(cpu, inst);
+        case ECALL:
+            execute_ECALL(cpu, inst);
+        case JALR:
+            execute_JALR(cpu, inst);
+        case JAL:
+            execute_JAL(cpu, inst);
+        case S_Type:
+            execute_S(cpu, inst);
+        case B_Type:
+            execute_B(cpu, inst);
+        case LUI:
+            execute_LUI(cpu, inst);
+        case AUIPC:
+            execute_AUIPC(cpu, inst);
+        case FENCE:
+            execute_FENCE(cpu, inst);
+        case UNKNOWN:
+            printf("UNKOWN OPCODE\n");
+        default:
+            break;
+    }
 }
 
 
