@@ -1,13 +1,13 @@
 #include "RV32I.h"
 
 /// @brief Extends an int number of a size_bit to 32bits using sign extension.
-/// @param n number
+/// @param n number to be sign extended
 /// @param extend_bit Extends the integer n from this bit forward. Zero indexed.
 /// @return Returns the 32bit sign_extended version of an int of size size_bit
 SINT32_T sign_Extend(SINT32_T n, SINT32_T extend_bit){
     if (extend_bit >= 31){
         printf("Error, cant extend more than 32bits\n");
-        return -1;
+        return n;
     }
 
     UINT32_T no_extend = (n & (1 << (extend_bit))) ? 0 : 1;

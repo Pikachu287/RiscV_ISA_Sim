@@ -332,9 +332,6 @@ void execute_FENCE(CPU * cpu, Instruction * inst){
 }
 
 
-
-
-
 void execute(CPU * cpu, Instruction * inst){
     switch(inst->type){
         case R_Type:
