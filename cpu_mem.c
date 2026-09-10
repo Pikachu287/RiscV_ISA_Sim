@@ -41,13 +41,21 @@ void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
     memcpy(&mem->data[adress],&val,4);
 }
 
-SINT8_T load_byte(Memory * mem, UINT32_T adress){
+SINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){
+    //Little endian
     if (adress >mem->size) printf("Illegal adress\n"); return -1;
-    return mem->data[adress];
+    if (use_extend){
+        return sign_Extend(mem->data[adress],7);
+    }
+    return mem->data[adress],7;
 }
 
-SINT16_T load_half(Memory * mem, UINT32_T adress){
+SINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
+    //Little endian
     if (adress+1 >mem->size) printf("Illegal adress\n"); return -1;
+    if (use_extend){
+        return sign_Extend((mem->data[adress] << 8) | (mem->data[adress+1]),15);
+    }
     return (mem->data[adress] << 8) | (mem->data[adress+1]);
 }
 
@@ -165,21 +173,32 @@ void execute_I(CPU * cpu, Instruction * inst){
 }
 
 void execute_L(CPU * cpu, Instruction * inst){
+    UINT32_T address = 0;
     switch (inst->funct3){
     case 0x0://lb
         printf("lb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        address = cpu->X[inst->rs1] + inst->imm;
+        cpu->X[inst->rd] = load_byte(cpu->mem,address,TRUE);
         break;
     case 0x1://lh
         printf("lh x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        address = cpu->X[inst->rs1] + inst->imm;
+        cpu->X[inst->rd] = load_half(cpu->mem,address,TRUE);
         break;
     case 0x2://lw
         printf("lw x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        address = cpu->X[inst->rs1] + inst->imm;
+        cpu->X[inst->rd] = load_word(cpu->mem,address);
         break;
     case 0x4://lbu
         printf("lbu x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        address = cpu->X[inst->rs1] + inst->imm;
+        cpu->X[inst->rd] = load_byte(cpu->mem,address,FALSE);
         break;
     case 0x5://lhu
         printf("lhu x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        address = cpu->X[inst->rs1] + inst->imm;
+        cpu->X[inst->rd] = load_half(cpu->mem,address,FALSE);
         break;
     default:
         printf("UNKNOWN L funct3 code %#02x\n",inst->funct3);
