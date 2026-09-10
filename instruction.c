@@ -89,6 +89,7 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
             inst.imm = sign_Extend((raw_instruction >> 20) & 0xFFF,11);
             break;
         case ECALL://NO IMM USED
+            inst.imm = raw_instruction>>20;
             break;
         case JALR:
             inst.imm = sign_Extend((raw_instruction >> 20) & 0xFFF,11);

@@ -188,7 +188,7 @@ void execute_L(CPU * cpu, Instruction * inst){
 }
 
 void execute_ECALL(CPU * cpu, Instruction * inst){
-    if ((inst->raw>>20) & 1){//Check bit set for ebreak instead of ecall
+    if (inst->imm == 0x001){//Check if bit 0 (of imm) is set for ebreak instead of ecall
         printf("EBREAK\n");
     }
     printf("ECALL %d\n", cpu->X[17]);//Check a7 for syscall/ecall variable
