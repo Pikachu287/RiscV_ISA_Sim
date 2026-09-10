@@ -34,6 +34,7 @@ void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
         printf("Illegal adress\n");
         return;
     }
+    //Memcpy doesn't check for little endian but uses the standard pc way (most of the time little endian)
     memcpy(&mem->data[adress + mem->base],&val,1);
 }
 
@@ -42,6 +43,7 @@ void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
         printf("Illegal adress\n");
         return;
     }
+    //Memcpy doesn't check for little endian but uses the standard pc way (most of the time little endian)
     memcpy(&mem->data[adress + mem->base],&val,2);
 }
 
@@ -50,6 +52,7 @@ void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
         printf("Illegal adress\n");
         return;
     }
+    //Memcpy doesn't check for little endian but uses the standard pc way (most of the time little endian)
     memcpy(&mem->data[adress + mem->base],&val,4);
 }
 
@@ -249,12 +252,15 @@ void execute_S(CPU * cpu, Instruction * inst){
     switch (inst->funct3){
     case 0x0://sb
         printf("sb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        save_byte(cpu->mem,adress,cpu->X[inst->rs2]);
         break;
     case 0x1://sh
         printf("sh x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        save_half(cpu->mem,adress,cpu->X[inst->rs2]);
         break;
     case 0x2://sw
         printf("sw x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        save_word(cpu->mem,adress,cpu->X[inst->rs2]);
         break;
     default:
         printf("UNKNOWN S funct3 code %#02x\n",inst->funct3);
