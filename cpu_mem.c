@@ -302,10 +302,12 @@ void execute_B(CPU * cpu, Instruction * inst){
 
 void execute_LUI(CPU * cpu, Instruction * inst){
     printf("lui x%d, %#07x\n",inst->rd,inst->imm);
+    cpu->X[inst->rd] = inst->imm;
 }
 
 void execute_AUIPC(CPU * cpu, Instruction * inst){
     printf("auipc x%d, %#07x\n",inst->rd,inst->imm);
+    cpu->X[inst->rd] = cpu->PC + inst->imm;
 }
 
 void execute_FENCE(CPU * cpu, Instruction * inst){
@@ -342,9 +344,12 @@ void execute(CPU * cpu, Instruction * inst){
             execute_FENCE(cpu, inst);
         case UNKNOWN:
             printf("UNKOWN OPCODE\n");
+            
         default:
             break;
     }
+    //Always makes reg ZERO have value 0, even if it was overwritten by accident.
+    cpu->X[0] = 0;
 }
 
 
