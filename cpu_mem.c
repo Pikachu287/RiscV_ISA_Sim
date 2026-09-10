@@ -209,17 +209,23 @@ void execute_L(CPU * cpu, Instruction * inst){
 void execute_ECALL(CPU * cpu, Instruction * inst){
     if (inst->imm == 0x001){//Check if bit 0 (of imm) is set for ebreak instead of ecall
         printf("EBREAK\n");
+        cpu->running = 0;
+        return;
     }
     printf("ECALL %d\n", cpu->X[17]);//Check a7 for syscall/ecall variable
+    cpu->running = 0;
 }
 
 void execute_JALR(CPU * cpu, Instruction * inst){
     printf("jalr x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+    cpu->X[inst->rd] = cpu->PC + 4;
+    cpu->PC = (cpu->X[inst->rs1] + inst->imm) & ~0x1;
 }
 
 void execute_JAL(CPU * cpu, Instruction * inst){
     printf("jal x%d, %d\n",inst->rd,inst->imm);
-
+    cpu->X[inst->rd] = cpu->PC + 4;
+    cpu->PC = cpu->PC + inst->imm;
 }
 
 void execute_S(CPU * cpu, Instruction * inst){
