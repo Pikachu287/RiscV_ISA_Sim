@@ -1,5 +1,6 @@
 #include "RV32I.h"
 
+//Maybe change the type to UINT32_T ???
 /// @brief Extends an int number of a size_bit to 32bits using sign extension.
 /// @param n number to be sign extended
 /// @param extend_bit Extends the integer n from this bit forward. Zero indexed.
