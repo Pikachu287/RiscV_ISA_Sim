@@ -65,7 +65,7 @@ UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     if (use_extend){
         return sign_Extend(mem->data[adress],7);
     }
-    return mem->data[adress],7;
+    return mem->data[adress];
 }
 
 UINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
@@ -239,6 +239,7 @@ void execute_ECALL(CPU * cpu, Instruction * inst){
         return;
     }
     printf("ECALL %d\n", cpu->X[17]);//Check a7 for syscall/ecall variable
+    execute_syscall(cpu,cpu->X[17],cpu->X[11]);
     cpu->running = 0;
 }
 
@@ -366,7 +367,42 @@ void execute(CPU * cpu, Instruction * inst){
     cpu->X[0] = 0;
 }
 
-
+void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1){
+    UINT8_T temp;
+    UINT32_T i = 0;
+    switch(a7){
+        case SYS_print_int:
+            printf("%d\n",a1);
+            break;
+        case SYS_print_string:
+            do {
+                temp = load_byte(cpu->mem,a1 + i, FALSE);
+                if (temp == 0x0 || (a1+i >= cpu->mem->size)){ //Hit null terminator or uninitialized memory.
+                    break;
+                }
+                printf("%c",temp);
+                i += 1;
+                
+            }while(i < MAX_STRING_LENGTH);
+            printf("\nDone printing\n");
+            break;
+        case SYS_sbrk:
+            printf("SYS_sbrk do somethingxxxxxxxxXXXX:):):):):):):):) IDK what to do with this:(\n");
+            break;
+        case SYS_exit:
+            printf("EXIT\n");
+            break;
+        case SYS_print_character:
+            printf("%c\n",(char)a1);
+            break;
+        case SYS_exit2:
+            printf("EXIT2\n");
+            break;
+        default:
+            printf("WTF WRONG ECALL VARIABLE???\\");
+            break;
+    }
+}
 
 
 

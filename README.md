@@ -60,3 +60,14 @@ x28	    t3      	Temporary register 3	                Caller
 x29	    t4      	Temporary register 4	                Caller
 x30	    t5      	Temporary register 5	                Caller
 x31	    t6      	Temporary register 6	                Caller
+
+
+ECALLS:
+1: print_int
+4: print_string
+9: sbrk
+10: exit
+11: print_character
+17: exit2 
+
+

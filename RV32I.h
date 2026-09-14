@@ -44,6 +44,7 @@ typedef struct {
     Memory * mem;
     UINT32_T PC;
     UINT8_T running;
+    //Bitmap or other way to check for locked memory for synched acces. For addign lr.w and sc.w - part of RV32A addon
 }CPU;
 
 Memory *create_memory(UINT32_T size, UINT32_T base_adress);
@@ -122,8 +123,16 @@ void execute_AUIPC(CPU * cpu, Instruction * inst);
 void execute_FENCE(CPU * cpu, Instruction * inst);
 
 
-
 void execute(CPU * cpu, Instruction * inst);
+void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1);
+#define SYS_print_int 0x1
+#define SYS_print_string 0x4
+#define SYS_sbrk 0x9
+#define SYS_exit 0xa
+#define SYS_print_character 0xb
+#define SYS_exit2 0x11
+#define MAX_STRING_LENGTH 4096
+
 
 
 

@@ -48,7 +48,6 @@ int main(){
         if (mem->data[i] != 0){
             printf("Mem_Byte: %#04x\t has\t%#02x\n",i,mem->data[i]);
         }
-        
     }
     printf("CPU REG x%d has value %#08x\n",5,cpu->X[5]);
     cpu->X[5] = load_word(cpu->mem,0x30);
@@ -57,6 +56,16 @@ int main(){
 
 
     printf("Done printing\n");
+    save_byte(mem, 0x50, 51);
+    save_byte(mem, 0x51, 52);
+    save_byte(mem, 0x52, 53);
+    save_byte(mem, 0x53, 58);
+    cpu->X[11] = 0x50;
+    cpu->X[17] = 4;
+    printf("Enter syscall;\n");
+    execute_syscall(cpu,cpu->X[17],cpu->X[11]);
+    printf("Data val manually: %c\n",mem->data[0x50]);
+    printf("Done syscall\n");
     // printf("%d\n",mem->data[0]);
     // printf("%d\n",mem->data[1]);
     // printf("%d\n",mem->data[2]);
