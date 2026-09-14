@@ -240,7 +240,6 @@ void execute_ECALL(CPU * cpu, Instruction * inst){
     }
     printf("ECALL %d\n", cpu->X[17]);//Check a7 for syscall/ecall variable
     execute_syscall(cpu,cpu->X[17],cpu->X[11]);
-    cpu->running = 0;
 }
 
 void execute_JALR(CPU * cpu, Instruction * inst){
@@ -390,12 +389,14 @@ void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1){
             printf("SYS_sbrk do somethingxxxxxxxxXXXX:):):):):):):):) IDK what to do with this:(\n");
             break;
         case SYS_exit:
+            cpu->running = 0;
             printf("EXIT\n");
             break;
         case SYS_print_character:
             printf("%c\n",(char)a1);
             break;
         case SYS_exit2:
+            cpu->running = 0;
             printf("EXIT2\n");
             break;
         default:
