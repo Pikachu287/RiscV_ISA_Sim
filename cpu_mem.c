@@ -374,7 +374,7 @@ void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1){
             printf("%d\n",a1);
             break;
         case SYS_print_string:
-            do {
+            do {//Perhabs add check?
                 temp = load_byte(cpu->mem,a1 + i, FALSE);
                 if (temp == 0x0 || (a1+i >= cpu->mem->size)){ //Hit null terminator or uninitialized memory.
                     break;
@@ -383,21 +383,21 @@ void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1){
                 i += 1;
                 
             }while(i < MAX_STRING_LENGTH);
-            printf("\nDone printing\n");
+            printf("\n");
             break;
         case SYS_sbrk:
             printf("SYS_sbrk do somethingxxxxxxxxXXXX:):):):):):):):) IDK what to do with this:(\n");
             break;
         case SYS_exit:
             cpu->running = 0;
-            printf("EXIT\n");
+            printf("exit\n");
             break;
         case SYS_print_character:
             printf("%c\n",(char)a1);
             break;
         case SYS_exit2:
             cpu->running = 0;
-            printf("EXIT2\n");
+            printf("exit %d\n", a1);
             break;
         default:
             printf("WTF WRONG ECALL VARIABLE???\\");

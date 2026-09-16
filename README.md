@@ -62,12 +62,13 @@ x30	    t5      	Temporary register 5	                Caller
 x31	    t6      	Temporary register 6	                Caller
 
 
-ECALLS:
-1: print_int
-4: print_string
-9: sbrk
-10: exit
-11: print_character
-17: exit2 
+       ECALLS:
+  a7-val:     Name:
+    1         print_int
+    4         print_string
+    9         sbrk
+    10        exit
+    11        print_character
+    17        exit2 
 
 

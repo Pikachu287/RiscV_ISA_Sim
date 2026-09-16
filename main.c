@@ -55,7 +55,7 @@ int main(){
 
 
 
-    printf("Done printing\n");
+    printf("Done printing changed bytes in mem and checking for little endian\n");
     save_byte(mem, 0x50, 0x66);
     save_byte(mem, 0x51, 0x75);
     save_byte(mem, 0x52, 0x63);
@@ -69,6 +69,6 @@ int main(){
     printf("Waiting (any input will stop program)");
     scanf("%d",&wait);
     
-    
+
     return 0;
 }
