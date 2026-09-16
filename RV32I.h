@@ -124,7 +124,7 @@ void execute_FENCE(CPU * cpu, Instruction * inst);
 
 
 void execute(CPU * cpu, Instruction * inst);
-void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1);
+void execute_syscall(CPU * cpu, UINT32_T a0, UINT32_T a1);
 #define SYS_print_int 0x1
 #define SYS_print_string 0x4
 #define SYS_sbrk 0x9
