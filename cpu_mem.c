@@ -239,7 +239,7 @@ void execute_ECALL(CPU * cpu, Instruction * inst){
         return;
     }
     printf("ECALL %d\n", cpu->X[17]);//Check a7 for syscall/ecall variable
-    execute_syscall(cpu,cpu->X[17],cpu->X[11]);
+    execute_syscall(cpu,cpu->X[10],cpu->X[11]);
 }
 
 void execute_JALR(CPU * cpu, Instruction * inst){
@@ -366,10 +366,10 @@ void execute(CPU * cpu, Instruction * inst){
     cpu->X[0] = 0;
 }
 
-void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a1){
+void execute_syscall(CPU * cpu, UINT32_T a0, UINT32_T a1){
     UINT8_T temp;
     UINT32_T i = 0;
-    switch(a7){
+    switch(a0){
         case SYS_print_int:
             printf("%d\n",a1);
             break;

@@ -61,9 +61,9 @@ int main(){
     save_byte(mem, 0x52, 0x63);
     save_byte(mem, 0x53, 0x6B);
     cpu->X[11] = 0x50; // manual add adress and print_string to reg.
-    cpu->X[17] = 4;
+    cpu->X[10] = 4;
     printf("Entering manual syscall;\n");
-    execute_syscall(cpu,cpu->X[17],cpu->X[11]);
+    execute_syscall(cpu,cpu->X[10],cpu->X[11]);
     printf("Done syscall\n");
     int wait;
     printf("Waiting (any input will stop program)");
