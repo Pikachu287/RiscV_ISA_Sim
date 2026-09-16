@@ -56,30 +56,19 @@ int main(){
 
 
     printf("Done printing\n");
-    save_byte(mem, 0x50, 51);
-    save_byte(mem, 0x51, 52);
-    save_byte(mem, 0x52, 53);
-    save_byte(mem, 0x53, 58);
-    cpu->X[11] = 0x50;
+    save_byte(mem, 0x50, 0x66);
+    save_byte(mem, 0x51, 0x75);
+    save_byte(mem, 0x52, 0x63);
+    save_byte(mem, 0x53, 0x6B);
+    cpu->X[11] = 0x50; // manual add adress and print_string to reg.
     cpu->X[17] = 4;
-    printf("Enter syscall;\n");
+    printf("Entering manual syscall;\n");
     execute_syscall(cpu,cpu->X[17],cpu->X[11]);
-    printf("Data val manually: %c\n",mem->data[0x50]);
     printf("Done syscall\n");
-    // printf("%d\n",mem->data[0]);
-    // printf("%d\n",mem->data[1]);
-    // printf("%d\n",mem->data[2]);
-    // printf("%d\n",mem->data[3]);
-    // printf("Hex: %#010x\n",inst1.raw);
-    // print_type(inst1.type);
-    // UINT32_T value = 0x12345678;
+    int wait;
+    printf("Waiting (any input will stop program)");
+    scanf("%d",&wait);
     
-    // UINT8_T * another[4] = {};
-    // printf("%d\n",sizeof(another[0]));
-    // memcpy(&another,&value,4);
-    // printf("%d\n",sizeof(another[0]));
-    // for (int i = 0; i < 4; i++){
-    //     printf("Value:  %#08x\n",another[i]);
-    // }
+    
     return 0;
 }
