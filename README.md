@@ -22,6 +22,7 @@ Decoding all RV32I instructions and simulating them
     - ~~funct3, funct7~~
     - ~~imm~~
 - ~~Instruction Decode function instead of large switch in main.~~
+- Integrate file reading and instruction loading into a loop which runs until `cpu->running = 0`.
 
 
 
