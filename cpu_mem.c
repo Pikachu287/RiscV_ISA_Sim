@@ -1,10 +1,10 @@
 #include "RV32I.h"
 
 
-Memory * create_memory(UINT32_T size, UINT32_T base_adress){
+Memory * create_memory(UINT32_T size, UINT32_T stack_adress){
     Memory * mem = malloc(sizeof(Memory));
     mem->data = calloc(size, 1); //Zero initialised data
-    mem->base = base_adress;
+    mem->base = stack_adress;
     mem ->size = size;
     
     

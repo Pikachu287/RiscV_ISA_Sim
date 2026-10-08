@@ -23,6 +23,7 @@ Decoding all RV32I instructions and simulating them
     - ~~imm~~
 - ~~Instruction Decode function instead of large switch in main.~~
 - Integrate file reading and instruction loading into a loop which runs until `cpu->running = 0`.
+- Simulate 5 stage pipelining - Or maybe not (Only do this if i have the time)
 
 
 
@@ -65,6 +66,7 @@ Decoding all RV32I instructions and simulating them
 
 
 ##       ECALLS:
+Given by the Ripes Env calls.
 | a0-val | Name | Description |
 |---|---|---|
 |    1     |    print_int       | prints integer in `a1`

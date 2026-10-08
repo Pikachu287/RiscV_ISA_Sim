@@ -1,6 +1,7 @@
 #include "RV32I.h"
 #include "cpu_mem.c"
 #include "instruction.c"
+// #include <X11/Xlib.h> // For future window addition perhaps???
 
 int main(){
     UINT32_T inst_list = { 
@@ -36,7 +37,11 @@ int main(){
         0x12345097 //auipc
     };
 
-
+    /*
+    Test saving and loading bytes
+    Test ecall
+    
+    */
     Memory * mem = create_memory(1024, 0x0);
     CPU * cpu = create_CPU(mem);
     Instruction inst1 = decode_Instruction(0x00200093);
@@ -56,10 +61,10 @@ int main(){
 
 
     printf("Done printing changed bytes in mem and checking for little endian\n");
-    save_byte(mem, 0x50, 0x66);
-    save_byte(mem, 0x51, 0x75);
-    save_byte(mem, 0x52, 0x63);
-    save_byte(mem, 0x53, 0x6B);
+    save_byte(mem, 0x50, 0x66);//f
+    save_byte(mem, 0x51, 0x75);//u
+    save_byte(mem, 0x52, 0x63);//c
+    save_byte(mem, 0x53, 0x6B);//k - Nothing is stored at next reg so it is already a null terminator
     cpu->X[11] = 0x50; // manual add adress and print_string to reg.
     cpu->X[10] = 4;
     printf("Entering manual syscall;\n");
@@ -68,7 +73,15 @@ int main(){
     int wait;
     printf("Waiting (any input will stop program)");
     scanf("%d",&wait);
-    
+    printf("Deleting CPU and making new.\n");
+    destroy_CPU(cpu);
+    destroy_memory(mem);
+    printf("Creating brand new CPU and memory for testing");
+    mem = create_memory(1024 * 1024, 0x0);
+    cpu = create_CPU(mem);
 
+    
+    destroy_memory(mem);
+    destroy_CPU(cpu);
     return 0;
 }
