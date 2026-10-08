@@ -20,10 +20,10 @@ void destroy_memory(Memory * mem){
     free(mem);
 }
 
-/// @brief Creates a new cpu and initializes sp to the base of the mem that was given
-/// 
-/// @param mem 
-/// @return 
+/// @brief Creates a new cpu and initializes sp(x2) to the base of the memory that was given.
+/// All other registers for the CPU is initialized to 0.
+/// @param mem The memory for which the cpu is to be initialed with.
+/// @return Returns a pointer to the CPU struct.
 CPU *create_CPU(Memory *mem){
     CPU *cpu = calloc(1,sizeof(CPU)); //calloc cause zero initialised X.
     cpu->mem = mem;
@@ -33,10 +33,17 @@ CPU *create_CPU(Memory *mem){
     printf("CPU initialized\n");
     return cpu;
 }
+
+/// @brief Destroys a CPU(Not it's memory)
+/// @param cpu The CPU that is to be destroyed.
 void destroy_CPU(CPU *cpu){
     free(cpu);
 }
 
+/// @brief Save one byte on the memory using memcpy.
+/// @param mem The memory where the data is saved to.
+/// @param adress The adress in memory where the data is saved.
+/// @param val The data to be saved.
 void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
     if (adress > mem->size) {
         printf("Illegal adress\n");
@@ -46,6 +53,10 @@ void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
     memcpy(&mem->data[adress],&val,1);
 }
 
+/// @brief Save half word on the memory using memcpy.
+/// @param mem The memory where the data is saved to.
+/// @param adress The adress in memory where the data is saved.
+/// @param val The data to be saved.
 void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
     if ((adress+1) > mem->size) {
         printf("Illegal adress\n");
@@ -55,6 +66,10 @@ void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
     memcpy(&mem->data[adress],&val,2);
 }
 
+/// @brief Save word on the memory using memcpy. 
+/// @param mem The memory where the data is saved to.
+/// @param adress The adress in memory where the data is saved.
+/// @param val The data to be saved.
 void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
     if ((adress+3) > mem->size) {
         printf("Illegal adress\n");
