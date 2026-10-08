@@ -79,6 +79,11 @@ void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
     memcpy(&mem->data[adress],&val,4);
 }
 
+/// @brief Loads a single byte from memory
+/// @param mem The memory from which the data is loaded from
+/// @param adress The adress of the data that is loaded.
+/// @param use_extend If the load is signed, then do a sign-extension.
+/// @return Returns the sign_extended or unsigned version of the data.
 UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     //Little endian
     if (adress > mem->size) {
@@ -91,6 +96,11 @@ UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     return mem->data[adress];
 }
 
+/// @brief Loads 2 bytes from memory
+/// @param mem The memory from which the data is loaded from
+/// @param adress The adress of the data that is loaded.
+/// @param use_extend If the load is signed, then do a sign-extension.
+/// @return Returns the sign_extended or unsigned version of the data. The data is loaded in little endian fashion.
 UINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     //Little endian
     if ((adress+1) > mem->size) {
@@ -103,6 +113,11 @@ UINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     return (mem->data[adress] << 8) | (mem->data[adress+1]);
 }
 
+/// @brief Loads word from memory
+/// @param mem The memory from which the data is loaded from
+/// @param adress The adress of the data that is loaded.
+/// @param use_extend If the load is signed, then do a sign-extension.
+/// @return Returns the sign_extended or unsigned version of the data. The data is loaded in little endian fashion.
 UINT32_T load_word(Memory * mem, UINT32_T adress){
     if ((adress+3) > mem->size) {
         printf("Illegal adress\n");
@@ -111,7 +126,9 @@ UINT32_T load_word(Memory * mem, UINT32_T adress){
     return ((UINT32_T)mem->data[adress+3] << 24) | ((UINT32_T)mem->data[adress+2] << 16) | ((UINT32_T)mem->data[adress+1] << 8) | ((UINT32_T)mem->data[adress]);
 }
 
-
+/// @brief Executes an R-type instruction based on which funct3 and funct7 value the instruction has.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_R(CPU * cpu, Instruction * inst){
     switch(inst->funct3){
         case 0x0: //ADD or SUB
@@ -170,6 +187,9 @@ void execute_R(CPU * cpu, Instruction * inst){
     cpu->PC = cpu->PC + 4;
 }
 
+/// @brief Executes an I-type instruction based on which funct3 and funct7 value the instruction has.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_I(CPU * cpu, Instruction * inst){
     SINT32_T shamt = inst->imm & 0x1F;
     switch(inst->funct3){
@@ -221,6 +241,9 @@ void execute_I(CPU * cpu, Instruction * inst){
     cpu->PC = cpu->PC + 4;
 }
 
+/// @brief Executes a load-type(I-type actually but has another OPCODE) instruction based on which funct3 value the instruction has.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_L(CPU * cpu, Instruction * inst){
     UINT32_T address = cpu->X[inst->rs1] + inst->imm; //Always just calculate the adress
     switch (inst->funct3){
@@ -252,6 +275,10 @@ void execute_L(CPU * cpu, Instruction * inst){
     cpu->PC = cpu->PC + 4;
 }
 
+/// @brief Executes a ecall/ebreak(where it just stops) instruction based on which imm value the instruction has.  
+/// When ecall is called, this function will execute a syscall, based on the value of a0 and a1.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_ECALL(CPU * cpu, Instruction * inst){
     //Add 4 to PC even for an ecall or ebreak
     cpu->PC = cpu->PC + 4;
@@ -261,22 +288,33 @@ void execute_ECALL(CPU * cpu, Instruction * inst){
         cpu->running = 0;
         return;
     }
-    printf("ECALL %d\n", cpu->X[17]);//Check a7 for syscall/ecall variable
+    printf("ECALL %d\n", cpu->X[10]);//Check a0 for syscall/ecall variable in a0.
+
+    //since the cpu is passed to the function. the variables a0 and a1 are redundant since these are stores in CPU but i cant bother to change it.
     execute_syscall(cpu,cpu->X[10],cpu->X[11]);
 }
 
+/// @brief Execute function for JALR instruction.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_JALR(CPU * cpu, Instruction * inst){
     printf("jalr x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
     cpu->X[inst->rd] = cpu->PC + 4;
     cpu->PC = (cpu->X[inst->rs1] + inst->imm) & ~0x1;
 }
 
+/// @brief Execute function for JAL instruction.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_JAL(CPU * cpu, Instruction * inst){
     printf("jal x%d, %d\n",inst->rd,inst->imm);
     cpu->X[inst->rd] = cpu->PC + 4;
     cpu->PC = cpu->PC + inst->imm;
 }
 
+/// @brief Execute function for S-type instructions.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_S(CPU * cpu, Instruction * inst){
     UINT32_T adress = cpu->X[inst->rs1] + inst->imm;
     switch (inst->funct3){
@@ -300,6 +338,9 @@ void execute_S(CPU * cpu, Instruction * inst){
     cpu->PC = cpu->PC + 4;
 }
 
+/// @brief Execute function for B-type instructions.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_B(CPU * cpu, Instruction * inst){
     switch (inst->funct3){
     case 0x0://beq - branch when rs1==rs2
@@ -334,6 +375,9 @@ void execute_B(CPU * cpu, Instruction * inst){
     }
 }
 
+/// @brief Execute function for LUI instruction.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_LUI(CPU * cpu, Instruction * inst){
     printf("lui x%d, %#07x\n",inst->rd,inst->imm);
     cpu->X[inst->rd] = inst->imm;
@@ -341,6 +385,9 @@ void execute_LUI(CPU * cpu, Instruction * inst){
     cpu->PC = cpu->PC + 4;
 }
 
+/// @brief Execute function for AUIPC instruction.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_AUIPC(CPU * cpu, Instruction * inst){
     printf("auipc x%d, %#07x\n",inst->rd,inst->imm);
     cpu->X[inst->rd] = cpu->PC + inst->imm;
@@ -348,13 +395,18 @@ void execute_AUIPC(CPU * cpu, Instruction * inst){
     cpu->PC = cpu->PC + 4;
 }
 
+/// @brief Execute function for FENCE instruction. This however does nothing but add 4 to the PC counter.
+/// @param cpu The CPU which the instruction is executed on.
+/// @param inst The instruction that is to be executed.
 void execute_FENCE(CPU * cpu, Instruction * inst){
     printf("FENCE not implemented\n");
     //Don't know the fuck what FENCE is, but just skip that shiiii.
     cpu->PC = cpu->PC + 4;
 }
 
-
+/// @brief The main execute function which chooses which type of function/instruction to execute, based on the type of the instruction.
+/// @param cpu The CPU on which the instruction is executed on.
+/// @param inst The instruction that is executed.
 void execute(CPU * cpu, Instruction * inst){
     switch(inst->type){
         case R_Type:
@@ -389,6 +441,10 @@ void execute(CPU * cpu, Instruction * inst){
     cpu->X[0] = 0;
 }
 
+/// @brief Syscall function which acts as the response from an ecall.
+/// @param cpu The cpu on which the syscall is executed on.
+/// @param a0 Variable for which syscall that is to be executed. Redundant since CPU is passed
+/// @param a1 Variable for some syscalls. Redundant since CPU is passed
 void execute_syscall(CPU * cpu, UINT32_T a0, UINT32_T a1){
     UINT8_T temp;
     UINT32_T i = 0;
@@ -423,7 +479,7 @@ void execute_syscall(CPU * cpu, UINT32_T a0, UINT32_T a1){
             printf("exit %d\n", a1);
             break;
         default:
-            printf("WTF WRONG ECALL VARIABLE???\\");
+            printf("WTF WRONG ECALL VARIABLE??? - Couldn't be me that made a mistake.\\");
             break;
     }
 }
