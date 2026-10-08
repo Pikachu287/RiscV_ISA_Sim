@@ -22,6 +22,9 @@ SINT32_T sign_Extend(SINT32_T n, SINT32_T extend_bit){
     
 }
 
+/// @brief Function for decoding the type of instruction.
+/// @param opcode OPCODE from which the instruction is chosen from.
+/// @return Returns Inst_type, the type of instruction.
 Inst_type decode_Opcode(UINT8_T opcode){
     Inst_type ins_type;
     switch(opcode){
@@ -66,6 +69,9 @@ Inst_type decode_Opcode(UINT8_T opcode){
     return ins_type;
 }
 
+/// @brief Function for decoding all information from a given 32bit instruction.
+/// @param raw_instruction 32bit instruction.
+/// @return Returns a decoded instruction.
 Instruction decode_Instruction(UINT32_T raw_instruction){
     Instruction inst;
     //Assignment for all values - no matter the type
@@ -127,6 +133,8 @@ Instruction decode_Instruction(UINT32_T raw_instruction){
     return inst;
 }
 
+/// @brief Debug function which prints the type of instruction.
+/// @param type The instruction type that is passed from Instuction->type
 void print_type(Inst_type type){
     switch(type){
         case R_Type:
