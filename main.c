@@ -79,8 +79,10 @@ int main(){
     printf("Creating brand new CPU and memory for testing\n");
     mem = create_memory(1024 * 1024);
     cpu = create_CPU(mem);
-
+    //Make loop for getting instructions here
     
+
+    //When done totally enter here.
     destroy_memory(mem);
     destroy_CPU(cpu);
     return 0;
