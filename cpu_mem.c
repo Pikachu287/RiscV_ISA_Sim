@@ -1,6 +1,9 @@
 #include "RV32I.h"
 
-
+/// @brief Creates a new Memory with the given parameters
+/// @param size The size of the memory in bytes when it is initialized.
+/// @param stack_adress The base stack adress.
+/// @return Memory pointer to the newly initialized memory.
 Memory * create_memory(UINT32_T size, UINT32_T stack_adress){
     Memory * mem = malloc(sizeof(Memory));
     mem->data = calloc(size, 1); //Zero initialised data
@@ -13,14 +16,21 @@ Memory * create_memory(UINT32_T size, UINT32_T stack_adress){
     return mem;
 }
 
+/// @brief Free the memory
+/// @param mem The memory pointer of the memory that will be free.
 void destroy_memory(Memory * mem){
     free(mem);
 }
- 
+
+/// @brief Creates a new cpu and initializes sp to the stack adress of the memory
+/// 
+/// @param mem 
+/// @return 
 CPU *create_CPU(Memory *mem){
     CPU *cpu = calloc(1,sizeof(CPU)); //calloc cause zero initialised X.
     cpu->mem = mem;
     cpu->PC = 0;
+    cpu->X[2] = cpu->mem->base;
     cpu->running = 1;
     printf("CPU initialized\n");
     return cpu;

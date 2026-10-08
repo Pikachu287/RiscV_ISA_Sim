@@ -47,7 +47,7 @@ typedef struct {
     //Bitmap or other way to check for locked memory for synched acces. For addign lr.w and sc.w - part of RV32A addon
 }CPU;
 
-Memory *create_memory(UINT32_T size, UINT32_T base_adress);
+Memory *create_memory(UINT32_T size, UINT32_T stack_adress);
 void destroy_memory(Memory * mem);
 
 CPU *create_CPU(Memory *mem);
