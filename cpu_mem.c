@@ -1,18 +1,16 @@
 #include "RV32I.h"
 
-/// @brief Creates a new Memory with the given parameters
+/// @brief Creates a new Memory with the given parameters. The base of the memory is initialized to be at the top of the stack.
 /// @param size The size of the memory in bytes when it is initialized.
-/// @param stack_adress The base stack adress.
 /// @return Memory pointer to the newly initialized memory.
-Memory * create_memory(UINT32_T size, UINT32_T stack_adress){
+Memory * create_memory(UINT32_T size){
     Memory * mem = malloc(sizeof(Memory));
     mem->data = calloc(size, 1); //Zero initialised data
-    mem->base = stack_adress;
-    mem ->size = size;
-    
+    mem->base = size - 1; // Top of the stack
+    mem ->size = size; //Size of the memory
     
     printf("Memory initialized with size: %d bytes - (%d KB) - (%d MB)\n", size, size / 1000, size / 1000000);
-    printf("Memory adress base: 0x%#08x\n",mem->base);
+    printf("Memory adress base: %#08x\n",mem->base);
     return mem;
 }
 
@@ -22,7 +20,7 @@ void destroy_memory(Memory * mem){
     free(mem);
 }
 
-/// @brief Creates a new cpu and initializes sp to the stack adress of the memory
+/// @brief Creates a new cpu and initializes sp to the base of the mem that was given
 /// 
 /// @param mem 
 /// @return 
@@ -45,7 +43,7 @@ void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
         return;
     }
     //Memcpy doesn't check for little endian but uses the standard pc way (most of the time little endian)
-    memcpy(&mem->data[adress + mem->base],&val,1);
+    memcpy(&mem->data[adress],&val,1);
 }
 
 void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
@@ -54,7 +52,7 @@ void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
         return;
     }
     //Memcpy doesn't check for little endian but uses the standard pc way (most of the time little endian)
-    memcpy(&mem->data[adress + mem->base],&val,2);
+    memcpy(&mem->data[adress],&val,2);
 }
 
 void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
@@ -63,7 +61,7 @@ void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
         return;
     }
     //Memcpy doesn't check for little endian but uses the standard pc way (most of the time little endian)
-    memcpy(&mem->data[adress + mem->base],&val,4);
+    memcpy(&mem->data[adress],&val,4);
 }
 
 UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend){

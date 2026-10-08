@@ -42,7 +42,7 @@ int main(){
     Test ecall
     
     */
-    Memory * mem = create_memory(1024, 0x0);
+    Memory * mem = create_memory(1024);
     CPU * cpu = create_CPU(mem);
     Instruction inst1 = decode_Instruction(0x00200093);
     save_byte(mem, 0x10, 0x12);
@@ -76,8 +76,8 @@ int main(){
     printf("Deleting CPU and making new.\n");
     destroy_CPU(cpu);
     destroy_memory(mem);
-    printf("Creating brand new CPU and memory for testing");
-    mem = create_memory(1024 * 1024, 0x0);
+    printf("Creating brand new CPU and memory for testing\n");
+    mem = create_memory(1024 * 1024);
     cpu = create_CPU(mem);
 
     
