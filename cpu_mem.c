@@ -128,7 +128,7 @@ UINT32_T load_word(Memory * mem, UINT32_T adress){
 
 /// @brief Executes an R-type instruction based on which funct3 and funct7 value the instruction has.
 /// @param cpu The CPU which the instruction is executed on.
-/// @param inst The instruction that is to be executed.
+/// @param inst The instruction that is to be executed
 void execute_R(CPU * cpu, Instruction * inst){
     switch(inst->funct3){
         case 0x0: //ADD or SUB
@@ -161,13 +161,14 @@ void execute_R(CPU * cpu, Instruction * inst){
             break;
         case 0x5://SRA and SRL
             switch(inst->funct7){
-                case 0://SRA
-                    printf("sra x%d, x%d, x%d\n",inst->rd,inst->rs1,inst->rs2);
-                    cpu->X[inst->rd] = sign_Extend(cpu->X[inst->rs1] >> (cpu->X[inst->rs2] & 0x1F),31-(cpu->X[inst->rs2] & 0x1F));
-                    break;
-                case 0x20://SRL
+                case 0://SRL
+                    
                     printf("srl x%d, x%d, x%d\n",inst->rd,inst->rs1,inst->rs2);
                     cpu->X[inst->rd] = cpu->X[inst->rs1] >> (cpu->X[inst->rs2] & 0x1F);
+                    break;
+                case 0x20://SRA
+                    printf("sra x%d, x%d, x%d\n",inst->rd,inst->rs1,inst->rs2);
+                    cpu->X[inst->rd] = sign_Extend(cpu->X[inst->rs1] >> (cpu->X[inst->rs2] & 0x1F),31-(cpu->X[inst->rs2] & 0x1F));
                     break;
             }
             break;
