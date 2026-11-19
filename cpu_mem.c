@@ -413,21 +413,21 @@ void execute_S(CPU * cpu, Instruction * inst){
     UINT32_T adress = cpu->X[inst->rs1] + inst->imm;
     switch (inst->funct3){
     case 0x0://sb
-        printf("sb x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        printf("sb x%d, %d(x%d)\n", inst->rs2, inst->imm, inst->rs1);
         if(!(cpu->output == NULL)){
             fprintf(cpu->output,"sb  \tx%d, %d(x%d)\n",inst->rs2,inst->imm,inst->rs1);
         }
         save_byte(cpu->mem,adress,cpu->X[inst->rs2]);
         break;
     case 0x1://sh
-        printf("sh x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        printf("sh x%d, %d(x%d)\n",inst->rs2,inst->imm,inst->rs1);
         if(!(cpu->output == NULL)){
             fprintf(cpu->output,"sh  \tx%d, %d(x%d)\n",inst->rs2,inst->imm,inst->rs1);
         }
         save_half(cpu->mem,adress,cpu->X[inst->rs2]);
         break;
     case 0x2://sw
-        printf("sw x%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
+        printf("sw x%d, %d(x%d)\n",inst->rs2,inst->imm,inst->rs1);
         if(!(cpu->output == NULL)){
             fprintf(cpu->output,"sw  \tx%d, %d(x%d)\n",inst->rs2,inst->imm,inst->rs1);
         }
