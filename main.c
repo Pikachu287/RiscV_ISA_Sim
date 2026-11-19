@@ -6,7 +6,7 @@
 int main(){
     //Get instructions.
     FILE *instr_f;
-    instr_f = fopen("bin_files/string.bin", "rb");
+    instr_f = fopen("bin_files/recursive.bin", "rb");
     if (instr_f == NULL) {
         perror("Error opening file");
         return EXIT_FAILURE;
@@ -53,14 +53,20 @@ int main(){
     fprintf(cpu->output, "________________________________________________________________\n");
     fprintf(cpu->output, "Register dump:\tHex\t\tDecimal\t\tChar\n");
     for (int i = 0; i < 32; i++){
-        printf("Reg: %d\t: %#8x\t%#10d\t%#5c\n", i, cpu->X[i], cpu->X[i], cpu->X[i]);// The #10 and #5 is undefined behavior (Which just adds spaces, so it doesn't break.)
-        fprintf(cpu->output,"Reg: %d\t: %#8x\t%#10d\t%#5c\n", i, cpu->X[i], cpu->X[i], cpu->X[i]);
+        printf("Reg: %d\t: %#8x\t%#10u\t%#5c\n", i, cpu->X[i], cpu->X[i], cpu->X[i]);// The #10 and #5 is undefined behavior (Which just adds spaces, so it doesn't break.)
+        fprintf(cpu->output,"Reg: %d\t: %#8x\t%#10u\t%#5c\n", i, cpu->X[i], cpu->X[i], cpu->X[i]);
     }
-    //Dump 1kb of cpu memory to file
+    //Dump part of cpu memory to file
     fprintf(cpu->output, "________________________________________________________________\n");
-    fprintf(cpu->output, "Dumb of the lowest 1024 Bytes of memory\n");
-    for (int i = 0; i < 1024;i++){
-        fprintf(cpu->output,"Byte:\t%#5d\tStores:\t%d\n",i,cpu->mem[i]);
+    fprintf(cpu->output, "Dumb of the lowest 256 Bytes of memory\n");
+    for (int i = 0; i < 256;i++){
+        fprintf(cpu->output,"Byte:\t%#5x\tStores:\t%u\n",i,cpu->mem->data[i]);
+    }
+    fprintf(cpu->output, "________________________________________________________________\n");
+    fprintf(cpu->output, "Dumb of the highest 256 Bytes of memory\n");
+    for (int i = 0; i < 256;i++){
+        UINT32_T adress = cpu->mem->size - 1 - i;
+        fprintf(cpu->output,"Byte:\t%#7x\tStores:\t%u\n",adress,cpu->mem->data[adress]);
     }
     //dump all registers in a .res file
     FILE * dump_out;
