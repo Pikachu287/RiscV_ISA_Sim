@@ -25,7 +25,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 
 #define TRUE 1
@@ -89,7 +88,7 @@ typedef enum {
 #define OPC_B 0x63
 #define OPC_LUI 0x37
 #define OPC_AUIPC 0x17
-#define OPC_FENCE 0xFF
+#define OPC_FENCE 0x0F
 
 
 typedef struct {
@@ -126,13 +125,16 @@ void execute_FENCE(CPU * cpu, Instruction * inst);
 
 
 void execute(CPU * cpu, Instruction * inst);
-void execute_syscall(CPU * cpu, UINT32_T a0, UINT32_T a1);
+void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a0);
 #define SYS_print_int 0x1
+#define SYS_print_float 0x2
 #define SYS_print_string 0x4
-#define SYS_sbrk 0x9
 #define SYS_exit 0xa
 #define SYS_print_character 0xb
-#define SYS_exit2 0x11
+#define SYS_print_hex 0x22 // 34
+#define SYS_print_bin 0x23// 35
+#define SYS_print_unsigned 0x24 // 36
+#define SYS_exit2 0x5d // 93
 #define MAX_STRING_LENGTH 4096
 
 

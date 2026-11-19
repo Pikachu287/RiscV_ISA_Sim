@@ -6,7 +6,7 @@
 Memory * create_memory(UINT32_T size){
     Memory * mem = malloc(sizeof(Memory));
     mem->data = calloc(size, 1); //Zero initialised data
-    mem->base = 0; // Top of the stack
+    mem->base = 0; // Bottom of memory
     mem ->size = size; //Size of the memory
     
     printf("Memory initialized with size: %d bytes - (%d KB) - (%d MB)\n", size, size / 1000, size / 1000000);
@@ -17,6 +17,7 @@ Memory * create_memory(UINT32_T size){
 /// @brief Free the memory
 /// @param mem The memory pointer of the memory that will be free.
 void destroy_memory(Memory * mem){
+    free(mem->data);
     free(mem);
 }
 
@@ -28,7 +29,7 @@ CPU *create_CPU(Memory *mem, FILE * output){
     CPU *cpu = calloc(1,sizeof(CPU)); //calloc cause zero initialised X.
     cpu->mem = mem;
     cpu->PC = 0;
-    cpu->X[2] = cpu->mem->base;
+    cpu->X[2] = cpu->mem->size; // Sets sp to top of memory
     cpu->running = 1;
     cpu->output = output;
     printf("CPU initialized\n\n");
@@ -46,7 +47,7 @@ void destroy_CPU(CPU *cpu){
 /// @param adress The adress in memory where the data is saved.
 /// @param val The data to be saved.
 void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
-    if (adress > mem->size) {
+    if (adress >= mem->size) {
         printf("Illegal adress\n");
         return;
     }
@@ -59,7 +60,7 @@ void save_byte(Memory * mem, UINT32_T adress, UINT8_T val){
 /// @param adress The adress in memory where the data is saved.
 /// @param val The data to be saved.
 void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
-    if ((adress+1) > mem->size) {
+    if ((adress+1) >= mem->size) {
         printf("Illegal adress\n");
         return;
     }
@@ -72,7 +73,7 @@ void save_half(Memory * mem, UINT32_T adress, UINT16_T val){
 /// @param adress The adress in memory where the data is saved.
 /// @param val The data to be saved.
 void save_word(Memory * mem, UINT32_T adress, UINT32_T val){
-    if ((adress+3) > mem->size) {
+    if ((adress+3) >= mem->size) {
         printf("Illegal adress\n");
         return;
     }
@@ -111,7 +112,7 @@ UINT32_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend){
     if (use_extend){
         return sign_Extend((mem->data[adress] << 8) | (mem->data[adress+1]),15);
     }
-    return (mem->data[adress] << 8) | (mem->data[adress+1]);
+    return (mem->data[adress]) | (mem->data[adress+1] << 8);
 }
 
 /// @brief Loads word from memory
@@ -162,7 +163,7 @@ void execute_R(CPU * cpu, Instruction * inst){
             if(!(cpu->output == NULL)){
                 fprintf(cpu->output,"slt \tx%d, x%d, x%d\n",inst->rd,inst->rs1,inst->rs2);
             }
-            cpu->X[inst->rd] = (cpu->X[inst->rs1] <(SINT32_T)cpu->X[inst->rs2]) ? 1 : 0;
+            cpu->X[inst->rd] = (SINT32_T)(cpu->X[inst->rs1] <(SINT32_T)cpu->X[inst->rs2]) ? 1 : 0;
             break;
         case 0x3: //SLTU - set Less Than unsigned
             printf("sltu x%d, x%d, x%d\n",inst->rd,inst->rs1,inst->rs2);
@@ -237,7 +238,7 @@ void execute_I(CPU * cpu, Instruction * inst){
         case 0x1://SLLI
             printf("slli x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
             if(!(cpu->output == NULL)){
-                fprintf(cpu->output,"slli \tx%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+                fprintf(cpu->output,"slli \tx%d, x%d, %d\n",inst->rd,inst->rs1,shamt);
             }
             cpu->X[inst->rd] = cpu->X[inst->rs1] << shamt;
             break;
@@ -267,14 +268,14 @@ void execute_I(CPU * cpu, Instruction * inst){
                 case 0x0: //SRLI - fill upper with 0
                     printf("srli x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
                     if(!(cpu->output == NULL)){
-                        fprintf(cpu->output,"srli \tx%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+                        fprintf(cpu->output,"srli \tx%d, x%d, %d\n",inst->rd,inst->rs1,shamt);
                     }
                     cpu->X[inst->rd] = cpu->X[inst->rs1] >> shamt;
                     break;
                 case 0x20://SRAI - fill upper with copt of sign bit
                     printf("srai x%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
                     if(!(cpu->output == NULL)){
-                        fprintf(cpu->output,"srai \tx%d, x%d, %d\n",inst->rd,inst->rs1,inst->imm);
+                        fprintf(cpu->output,"srai \tx%d, x%d, %d\n",inst->rd,inst->rs1,shamt);
                     }
                     cpu->X[inst->rd] = sign_Extend(cpu->X[inst->rs1] >> shamt,31-shamt);
                     break;
@@ -390,8 +391,9 @@ void execute_JALR(CPU * cpu, Instruction * inst){
     if(!(cpu->output == NULL)){
         fprintf(cpu->output,"jalr \tx%d, %d(x%d)\n",inst->rd,inst->imm,inst->rs1);
     }
+    UINT32_T target = (cpu->X[inst->rs1] + inst->imm) & ~1u;
     cpu->X[inst->rd] = cpu->PC + 4;
-    cpu->PC = (cpu->X[inst->rs1] + inst->imm) & ~0x1;
+    cpu->PC = target;
 }
 
 /// @brief Execute function for JAL instruction.
@@ -508,7 +510,7 @@ void execute_B(CPU * cpu, Instruction * inst){
 void execute_LUI(CPU * cpu, Instruction * inst){
     printf("lui x%d, %#07x\n",inst->rd,inst->imm);
     if(!(cpu->output == NULL)){
-        fprintf(cpu->output,"lui \tx%d, %#07x\n",inst->rd,inst->imm);
+        fprintf(cpu->output,"lui \tx%d, %#07x\n",inst->rd,inst->imm >> 12);
     }
     cpu->X[inst->rd] = inst->imm;
     //LUI is linear (pc+4)
@@ -521,7 +523,7 @@ void execute_LUI(CPU * cpu, Instruction * inst){
 void execute_AUIPC(CPU * cpu, Instruction * inst){
     printf("auipc x%d, %#07x\n",inst->rd,inst->imm);
     if(!(cpu->output == NULL)){
-        fprintf(cpu->output,"auipc \tx%d, %#07x\n",inst->rd,inst->imm);
+        fprintf(cpu->output,"auipc \tx%d, %#07x\n",inst->rd,inst->imm >> 12);
     }
     cpu->X[inst->rd] = cpu->PC + inst->imm;
     //AUIPC is linear (pc+4) even though it uses pc.
@@ -579,8 +581,9 @@ void execute(CPU * cpu, Instruction * inst){
             execute_FENCE(cpu, inst);
             break;
         case UNKNOWN:
-            printf("UNKOWN OPCODE\n");
+            printf("UNKNOWN OPCODE\n");
             cpu->PC = cpu->PC + 4;
+            cpu->running = 0; // stop on unknown opcode
             break;
         default:
             break;
@@ -591,28 +594,43 @@ void execute(CPU * cpu, Instruction * inst){
 
 /// @brief Syscall function which acts as the response from an ecall.
 /// @param cpu The cpu on which the syscall is executed on.
-/// @param a0 Variable for which syscall that is to be executed. Redundant since CPU is passed
-/// @param a1 Variable for some syscalls. Redundant since CPU is passed
+/// @param a7 Variable for which syscall that is to be executed. Redundant since CPU is passed
+/// @param a0 Variable for some syscalls. Redundant since CPU is passed
 void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a0){
-    UINT8_T temp;
     UINT32_T i = 0;
+    UINT8_T temp;
     switch(a7){
         case SYS_print_int:
             if(!(cpu->output == NULL)){
-                fprintf(cpu->output,"Printing int:\n",temp);
+                fprintf(cpu->output,"Printing int:\n");
             }
-            printf("%d\n",a0);
+            printf("%d\n",(SINT32_T)a0);
             if(!(cpu->output == NULL)){
-                fprintf(cpu->output,"%d\n",a0);
+                fprintf(cpu->output,"%d\n",(SINT32_T)a0);
             }
             break;
+        case SYS_print_float:{
+            float f;
+            memcpy(&f,&a0,4);
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"Printing float:\n");
+            }
+            printf("%g\n",f);
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"%g\n",f);
+            }
+            break;
+        }
         case SYS_print_string:
             if(!(cpu->output == NULL)){
-                fprintf(cpu->output,"Printing String:\n",temp);
+                fprintf(cpu->output,"Printing String:\n");
             }
-            do {//Perhabs add check?
+            while(i < MAX_STRING_LENGTH){
+                if (a0 + i >= cpu->mem->size){ //Ran out of memory before a null terminator
+                    break;
+                }
                 temp = load_byte(cpu->mem,a0 + i, FALSE);
-                if (temp == 0x0 || (a0+i >= cpu->mem->size)){ //Hit null terminator or uninitialized memory.
+                if (temp == 0x0){ //Hit null terminator.
                     break;
                 }
                 printf("%c",temp);
@@ -620,19 +638,18 @@ void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a0){
                     fprintf(cpu->output,"%c",temp);
                 }
                 i += 1;
-                
-            }while(i < MAX_STRING_LENGTH);
+            }
             printf("\n");
             if(!(cpu->output == NULL)){
                 fprintf(cpu->output,"\n");
             }
             break;
-        case SYS_sbrk:
-            printf("SYS_sbrk do somethingxxxxxxxxXXXX:):):):):):):):) IDK what to do with this:(\n");
-            break;
         case SYS_exit:
             cpu->running = 0;
             printf("exit\n");
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"exit\n");
+            }
             break;
         case SYS_print_character:
             if(!(cpu->output == NULL)){
@@ -640,17 +657,55 @@ void execute_syscall(CPU * cpu, UINT32_T a7, UINT32_T a0){
             }
             printf("%c\n",(char)a0);
             if(!(cpu->output == NULL)){
-                fprintf(cpu->output,"%c\n",a0);
+                fprintf(cpu->output,"%c\n",(char)a0);
+            }
+            break;
+        case SYS_print_hex:
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"Printing hex:\n");
+            }
+            printf("0x%08x\n",a0);
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"0x%08x\n",a0);
+            }
+            break;
+        case SYS_print_bin:
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"Printing binary:\n0b");
+            }
+            printf("0b");
+            for(int b = 31; b >= 0; b--){ //Always all 32 bits, MSB first
+                printf("%d",(a0 >> b) & 1);
+                if(!(cpu->output == NULL)){
+                    fprintf(cpu->output,"%d",(a0 >> b) & 1);
+                }
+            }
+            printf("\n");
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"\n");
+            }
+            break;
+        case SYS_print_unsigned:
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"Printing unsigned:\n");
+            }
+            printf("%u\n",a0);
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"%u\n",a0);
             }
             break;
         case SYS_exit2:
             cpu->running = 0;
+            printf("exit with status code %d\n",(SINT32_T)a0);
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"exit with status code %d\n",(SINT32_T)a0);
+            }
             break;
         default:
-            printf("WTF WRONG ECALL VARIABLE??? - Couldn't be me that made a mistake.\n");
+            printf("Unknown ECALL number: %u\n",a7);
+            if(!(cpu->output == NULL)){
+                fprintf(cpu->output,"Unknown ECALL number: %u\n",a7);
+            }
             break;
     }
 }
-
-
-
