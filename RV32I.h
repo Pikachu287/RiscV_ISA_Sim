@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #define TRUE 1
@@ -44,20 +45,21 @@ typedef struct {
     Memory * mem;
     UINT32_T PC;
     UINT8_T running;
+    FILE* output;
     //Bitmap or other way to check for locked memory for synched acces. For addign lr.w and sc.w - part of RV32A addon
 }CPU;
 
 Memory *create_memory(UINT32_T size);
 void destroy_memory(Memory * mem);
 
-CPU *create_CPU(Memory *mem);
+CPU *create_CPU(Memory *mem, FILE * output);
 void destroy_CPU(CPU *cpu);
 
 void save_byte(Memory * mem, UINT32_T adress, UINT8_T val);
 void save_half(Memory * mem, UINT32_T adress, UINT16_T val);
 void save_word(Memory * mem, UINT32_T adress, UINT32_T val);
-UINT8_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend);
-UINT16_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend);
+UINT32_T load_byte(Memory * mem, UINT32_T adress, UINT8_T use_extend);
+UINT32_T load_half(Memory * mem, UINT32_T adress, UINT8_T use_extend);
 UINT32_T load_word(Memory * mem, UINT32_T adress);
 
 //--------------------------------------------------------------------------------------
